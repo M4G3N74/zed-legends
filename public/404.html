@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .error-container {
+      text-align: center;
+      padding: 50px 20px;
+    }
+    .error-code {
+      font-size: 120px;
+      margin: 0;
+      color: var(--accent-color);
+    }
+    .error-message {
+      font-size: 24px;
+      margin: 20px 0;
+    }
+    .home-link {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: var(--accent-color);
+      color: var(--bg-color);
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .home-link:hover {
+      background-color: var(--accent-color-hover);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>Music Stream</h1>
+    </header>
+
+    <main>
+      <div class="error-container">
+        <h1 class="error-code">404</h1>
+        <p class="error-message">Oops! The page you're looking for doesn't exist.</p>
+        <a href="/" class="home-link">Back to Home</a>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2023 Music Stream</p>
+    </footer>
+  </div>
+</body>
+</html>

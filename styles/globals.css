@@ -1,0 +1,266 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Catppuccin Mocha color palette */
+  --color-background: #1e1e2e;
+  --color-surface: #313244;
+  --color-overlay: #6c7086;
+  --color-muted: #9399b2;
+  --color-text: #cdd6f4;
+  --color-love: #f38ba8;
+  --color-gold: #f9e2af;
+  --color-peach: #fab387;
+  --color-green: #a6e3a1;
+  --color-teal: #94e2d5;
+  --color-sky: #89dceb;
+  --color-sapphire: #74c7ec;
+  --color-blue: #89b4fa;
+  --color-lavender: #b4befe;
+  --color-mauve: #cba6f7;
+}
+
+/* Light theme colors (Catppuccin Latte) */
+.light-theme {
+  --color-background: #eff1f5;
+  --color-surface: #ccd0da;
+  --color-overlay: #9ca0b0;
+  --color-muted: #8c8fa1;
+  --color-text: #4c4f69;
+  --color-love: #d20f39;
+  --color-gold: #df8e1d;
+  --color-peach: #fe640b;
+  --color-green: #40a02b;
+  --color-teal: #179299;
+  --color-sky: #04a5e5;
+  --color-sapphire: #209fb5;
+  --color-blue: #1e66f5;
+  --color-lavender: #7287fd;
+  --color-mauve: #8839ef;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-text font-sans;
+    @apply min-h-screen;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-overlay rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  .btn-primary {
+    @apply bg-mauve text-background hover:bg-lavender;
+  }
+
+  .btn-secondary {
+    @apply bg-surface text-text hover:bg-overlay;
+  }
+
+  .btn-icon {
+    @apply p-2 rounded-full transition-colors;
+  }
+
+  .input {
+    @apply bg-surface text-text px-4 py-2 rounded-md border border-overlay focus:outline-none focus:border-mauve;
+  }
+
+  .card {
+    @apply bg-surface rounded-lg p-4 shadow-lg;
+  }
+
+  /* Search styles */
+  .active-search input {
+    @apply border-mauve shadow-sm shadow-mauve/20;
+  }
+
+  .search-container {
+    @apply transition-all duration-300;
+  }
+
+  .search-container.active-search {
+    @apply scale-[1.02] z-10;
+  }
+
+  .search-result-count {
+    @apply py-1 px-2 rounded-md bg-background/80 backdrop-blur-sm;
+    text-shadow: 0 0 5px rgba(203, 166, 247, 0.5);
+  }
+
+  .search-error {
+    @apply py-1 px-2 rounded-md backdrop-blur-sm shadow-sm;
+    text-shadow: 0 0 5px rgba(243, 139, 168, 0.5);
+  }
+}
+
+/* Visualizer styles */
+.visualizer-container {
+  @apply h-32 w-full rounded-lg overflow-hidden mb-4;
+  background: linear-gradient(to right, var(--color-mauve), var(--color-blue));
+}
+
+/* Enhanced visualizer for mobile expanded view */
+.expanded-player .album-art-large {
+  position: relative;
+  overflow: hidden;
+}
+
+.expanded-player .album-art-large::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(to bottom,
+    rgba(203, 166, 247, 0.2),
+    rgba(137, 180, 250, 0.2)
+  );
+  opacity: 0.5;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.expanded-player .album-art-large::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(to top,
+    rgba(30, 30, 46, 0.7),
+    transparent
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Player controls */
+.player-controls {
+  @apply flex flex-col items-center justify-center gap-2;
+}
+
+.control-buttons {
+  @apply flex items-center justify-center gap-2;
+}
+
+.control-button {
+  @apply p-2 rounded-full transition-colors text-text hover:text-mauve;
+}
+
+.control-button.active {
+  @apply text-mauve;
+}
+
+/* Progress bar */
+.progress-container {
+  @apply w-full flex items-center gap-2;
+}
+
+.progress-bar {
+  @apply flex-1 h-1 bg-surface rounded-full overflow-hidden cursor-pointer;
+}
+
+#progress {
+  @apply h-full bg-mauve;
+  width: 0%;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .sidebar {
+    @apply fixed bottom-0 left-0 right-0 top-auto h-auto w-full z-20;
+    @apply flex flex-row items-center justify-between px-4 py-2;
+    @apply border-t border-surface;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(49, 50, 68, 0.8);
+  }
+
+  .nav-menu {
+    @apply flex flex-row items-center justify-center gap-4;
+  }
+
+  .nav-item span {
+    @apply hidden;
+  }
+
+  .logo h1 {
+    @apply hidden;
+  }
+
+  .main-content {
+    @apply pb-32;
+  }
+
+  .now-playing-bar {
+    @apply fixed bottom-16 left-0 right-0 z-10;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(30, 30, 46, 0.8);
+    transition: all 0.3s ease;
+  }
+
+  /* Expanded player styles */
+  .expanded-player {
+    @apply fixed top-0 left-0 right-0 bottom-0 z-30;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    background-color: rgba(30, 30, 46, 0.9);
+    animation: slideUp 0.3s ease;
+  }
+
+  .expanded-player-content {
+    @apply overflow-y-auto;
+  }
+
+  /* Improved touch targets for mobile */
+  .control-button {
+    @apply min-w-[44px] min-h-[44px] flex items-center justify-center;
+  }
+
+  /* Larger progress bar for mobile */
+  .expanded-player .progress-bar {
+    @apply h-2;
+  }
+
+  /* Animation for expanding player */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Swipe area for mobile */
+  .now-playing-info {
+    touch-action: pan-y;
+  }
+}

@@ -1,0 +1,169 @@
+/* Frosted Glass Effects for React Components */
+
+/* Base frosted glass effect */
+.frosted-glass {
+  background-color: rgba(30, 30, 46, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(203, 166, 247, 0.1);
+  border: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Now playing bar with frosted glass effect */
+.now-playing-bar {
+  background-color: rgba(24, 24, 37, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Sidebar with frosted glass effect */
+.sidebar {
+  background-color: rgba(24, 24, 37, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Header with frosted glass effect */
+header.content-header {
+  background-color: rgba(30, 30, 46, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(69, 71, 90, 0.3);
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* Control buttons with frosted glass effect */
+.control-buttons {
+  background-color: rgba(24, 24, 37, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 40px;
+  padding: 0.5rem;
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Volume slider with frosted glass effect */
+.volume-slider {
+  background-color: rgba(24, 24, 37, 0.5) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(69, 71, 90, 0.3) !important;
+}
+
+/* Modal with frosted glass effect */
+.modal-content {
+  background-color: rgba(30, 30, 46, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(69, 71, 90, 0.5);
+}
+
+/* Dropdown menu with frosted glass effect */
+.dropdown-menu {
+  background-color: rgba(24, 24, 37, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(69, 71, 90, 0.5);
+}
+
+/* Song item hover effect */
+.song-item:hover {
+  background-color: rgba(69, 71, 90, 0.3);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Active song item */
+.song-item.active {
+  background-color: rgba(203, 166, 247, 0.15);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-left: 3px solid rgba(203, 166, 247, 0.8);
+}
+
+/* Visualizer container */
+.visualizer-container {
+  background-color: rgba(24, 24, 37, 0.3);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Search bar */
+.search-container input {
+  background-color: rgba(24, 24, 37, 0.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Glow effect for containers */
+.glow-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(203, 166, 247, 0.1) 0%,
+    rgba(137, 220, 235, 0.05) 30%,
+    transparent 70%
+  );
+  opacity: 0.5;
+  animation: rotate 30s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Mega boost visual effect */
+.mega-boost-active .visualizer-container canvas {
+  filter: saturate(1.5) contrast(1.2);
+}
+
+.mega-boost-active .progress-bar div {
+  box-shadow: 0 0 10px rgba(245, 194, 231, 0.8);
+}
+
+.mega-boost-active .control-button.text-pink-500 {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    text-shadow: 0 0 5px rgba(245, 194, 231, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(245, 194, 231, 0.8);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(245, 194, 231, 0.5);
+  }
+}

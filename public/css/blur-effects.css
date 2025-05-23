@@ -1,0 +1,140 @@
+/* Blur Effects CSS */
+
+/* Base blur effect for containers */
+.blur-container {
+  background-color: rgba(30, 30, 46, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(203, 166, 247, 0.1);
+  border: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Player container with album art background */
+.player-container {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Album art background effect */
+.album-art-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  opacity: 0.2;
+  filter: blur(30px);
+  transform: scale(1.2);
+  background-size: cover;
+  background-position: center;
+  transition: background-image 0.5s ease;
+}
+
+/* Now playing bar with blur */
+.now-playing-bar {
+  background-color: rgba(24, 24, 37, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Sidebar with blur */
+.sidebar {
+  background-color: rgba(24, 24, 37, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Header with blur */
+header {
+  background-color: rgba(30, 30, 46, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(69, 71, 90, 0.3);
+}
+
+/* Control buttons with blur */
+.control-buttons {
+  background-color: rgba(24, 24, 37, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 40px;
+  padding: 0.5rem;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Volume slider with blur */
+.volume-container {
+  background-color: rgba(24, 24, 37, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-radius: 30px;
+  padding: 0.5rem 1rem;
+}
+
+/* Playlist items with blur on hover */
+.playlist li:hover {
+  background-color: rgba(69, 71, 90, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Modal with blur */
+.modal-content {
+  background-color: rgba(30, 30, 46, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(69, 71, 90, 0.5);
+}
+
+/* Dropdown menu with blur */
+.dropdown-menu {
+  background-color: rgba(24, 24, 37, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(69, 71, 90, 0.5);
+}
+
+/* Glow effect for containers */
+.glow-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(203, 166, 247, 0.1) 0%,
+    rgba(137, 220, 235, 0.05) 30%,
+    transparent 70%
+  );
+  opacity: 0.5;
+  animation: rotate 30s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

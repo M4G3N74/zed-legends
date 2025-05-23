@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zambian Legends | Purple</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/blur-effects.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="theme-color" content="#1e1e2e">
+  <meta name="description" content="A music streaming application with Catppuccin Mocha theme">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Spotify-inspired sidebar navigation -->
+    <nav class="sidebar">
+      <div class="logo">
+        <i class="fas fa-music"></i>
+        <h1>Zambian Legends</h1>
+      </div>
+
+      <ul class="nav-menu">
+        <li class="nav-item active">
+          <a href="#home">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#library">
+            <i class="fas fa-book"></i>
+            <span>Library</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#playlists">
+            <i class="fas fa-list"></i>
+            <span>Playlists</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="song-count" title="Total Songs">
+          <i class="fas fa-music"></i>
+          <span id="total-songs-count">0</span>
+        </div>
+        <div class="theme-toggle">
+          <i class="fas fa-moon"></i>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Top Header with search and controls -->
+        <header class="content-header">
+          <div class="header-controls">
+            <div class="search-container">
+              <label for="search-input" class="sr-only">Search songs, artists, or albums</label>
+              <i class="fas fa-search search-icon" aria-hidden="true"></i>
+              <input type="text" id="search-input" placeholder="Search songs, artists, or albums..." aria-label="Search songs, artists, or albums">
+            </div>
+            <div class="action-buttons">
+              <div class="sort-dropdown">
+                <button id="sort-button" class="sort-button" title="Sort Library">
+                  <i class="fas fa-sort"></i>
+                  <span>Sort</span>
+                </button>
+                <div class="sort-menu">
+                  <button class="sort-option" data-sort="artist">By Artist</button>
+                  <button class="sort-option" data-sort="album">By Album</button>
+                  <button class="sort-option" data-sort="title">By Title</button>
+                </div>
+              </div>
+              <button id="download-all-button" class="action-button" title="Download All Songs">
+                <i class="fas fa-download"></i>
+              </button>
+              <button id="refresh-button" title="Refresh Library">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Main content with song list -->
+        <section class="library-section">
+          <h2 class="section-title">Your Music</h2>
+
+          <!-- Plexamp-inspired visualizer -->
+          <div class="visualizer-container">
+            <canvas id="visualizer"></canvas>
+          </div>
+
+          <!-- Pagination controls (top) -->
+          <div class="pagination-controls top">
+            <div class="page-info">
+              <span id="page-display">Page 1 of 1</span>
+              <span id="items-display">Showing 1-50 of 0 songs</span>
+            </div>
+            <div class="page-buttons">
+              <button id="first-page-btn" class="page-btn" title="First Page">
+                <i class="fas fa-angle-double-left"></i>
+              </button>
+              <button id="prev-page-btn" class="page-btn" title="Previous Page">
+                <i class="fas fa-angle-left"></i>
+              </button>
+              <div class="page-numbers" id="page-numbers">
+                <!-- Page numbers will be generated here -->
+              </div>
+              <button id="next-page-btn" class="page-btn" title="Next Page">
+                <i class="fas fa-angle-right"></i>
+              </button>
+              <button id="last-page-btn" class="page-btn" title="Last Page">
+                <i class="fas fa-angle-double-right"></i>
+              </button>
+            </div>
+            <div class="page-size-selector">
+              <label for="page-size">Per page:</label>
+              <select id="page-size">
+                <option value="25">25</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+              <div class="pagination-mode-toggle">
+                <button id="pagination-mode-toggle" title="Toggle between standard pagination and infinite scroll">
+                  <i class="fas fa-toggle-on"></i>
+                  <span>Standard</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="playlist-container">
+            <ul id="playlist" class="playlist">
+              <!-- Songs will be loaded here -->
+              <li class="loading">Loading songs...</li>
+            </ul>
+          </div>
+
+          <!-- Pagination controls (bottom) -->
+          <div class="pagination-controls bottom">
+            <div class="page-info">
+              <span id="page-display-bottom">Page 1 of 1</span>
+              <span id="items-display-bottom">Showing 1-50 of 0 songs</span>
+            </div>
+            <div class="page-buttons">
+              <button id="first-page-btn-bottom" class="page-btn" title="First Page">
+                <i class="fas fa-angle-double-left"></i>
+              </button>
+              <button id="prev-page-btn-bottom" class="page-btn" title="Previous Page">
+                <i class="fas fa-angle-left"></i>
+              </button>
+              <div class="page-numbers" id="page-numbers-bottom">
+                <!-- Page numbers will be generated here -->
+              </div>
+              <button id="next-page-btn-bottom" class="page-btn" title="Next Page">
+                <i class="fas fa-angle-right"></i>
+              </button>
+              <button id="last-page-btn-bottom" class="page-btn" title="Last Page">
+                <i class="fas fa-angle-double-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Now Playing Bar (Fixed at bottom like Spotify) -->
+      <div class="player-container blur-container glow-container">
+        <div class="album-art-background"></div>
+        <div class="player-content">
+          <div class="now-playing-info">
+            <div class="album-art">
+              <i class="fas fa-music"></i>
+            </div>
+            <div class="track-info">
+              <h3 id="current-title">No track selected</h3>
+              <p id="current-artist">Select a track to play</p>
+            </div>
+            <button id="download-button" class="action-button" title="Download Song">
+              <i class="fas fa-download"></i>
+            </button>
+          </div>
+
+          <div class="player-controls">
+            <div class="control-buttons" role="group" aria-label="Playback controls">
+              <button id="shuffle-button" class="control-button" title="Shuffle" aria-label="Toggle shuffle mode" aria-pressed="false">
+                <i class="fas fa-random" aria-hidden="true"></i>
+              </button>
+              <button id="smart-shuffle-button" class="control-button active" title="Smart Shuffle" aria-label="Toggle smart shuffle mode" aria-pressed="true">
+                <i class="fas fa-brain" aria-hidden="true"></i>
+              </button>
+              <button id="prev-button" class="control-button" aria-label="Previous song">
+                <i class="fas fa-step-backward" aria-hidden="true"></i>
+              </button>
+              <button id="play-button" class="control-button" aria-label="Play">
+                <i class="fas fa-play" aria-hidden="true"></i>
+              </button>
+              <button id="next-button" class="control-button" aria-label="Next song">
+                <i class="fas fa-step-forward" aria-hidden="true"></i>
+              </button>
+              <button id="repeat-button" class="control-button" title="Repeat" aria-label="Toggle repeat mode" aria-pressed="false">
+                <i class="fas fa-redo" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="progress-container">
+              <span id="current-time" aria-label="Current time">0:00</span>
+              <div class="progress-bar" role="progressbar" aria-label="Song progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="progress"></div>
+              </div>
+              <span id="duration" aria-label="Total duration">0:00</span>
+            </div>
+          </div>
+
+          <div class="playback-controls">
+            <button id="bass-boost-button" class="control-button" title="Bass Boost" aria-label="Toggle Bass Boost" aria-pressed="false">
+              <i class="fas fa-drum" aria-hidden="true"></i>
+            </button>
+            <button id="autoplay-button" class="control-button active" title="Auto-play" aria-label="Toggle Auto-play" aria-pressed="true">
+              <i class="fas fa-infinity" aria-hidden="true"></i>
+            </button>
+            <div class="volume-container">
+              <i class="fas fa-volume-up"></i>
+              <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Audio element (hidden) -->
+  <audio id="audio-player" preload="auto"></audio>
+
+  <!-- Edit Metadata Modal -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Metadata</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="metadata-form">
+          <input type="hidden" id="edit-song-index" name="index">
+          <input type="hidden" id="edit-song-file" name="file">
+
+          <div class="form-group">
+            <label for="edit-title">Title</label>
+            <input type="text" id="edit-title" name="title" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="edit-artist">Artist</label>
+            <input type="text" id="edit-artist" name="artist" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="edit-album">Album</label>
+            <input type="text" id="edit-album" name="album" class="form-control">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-button">Save Changes</button>
+            <button type="button" class="cancel-button">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header delete-header">
+        <h2>Delete Song</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p class="delete-message">Are you sure you want to delete "<span id="delete-song-title"></span>"?</p>
+        <p class="delete-warning">This action cannot be undone. The file will be permanently deleted from your music folder.</p>
+
+        <input type="hidden" id="delete-song-index">
+        <input type="hidden" id="delete-song-file">
+
+        <div class="form-actions">
+          <button type="button" id="confirm-delete-button" class="delete-confirm-button">Delete</button>
+          <button type="button" id="cancel-delete-button" class="cancel-button">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legacy player.js removed in favor of React player -->
+</body>
+</html>
