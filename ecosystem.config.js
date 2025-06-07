@@ -2,17 +2,22 @@ module.exports = {
   apps: [{
     name: 'zed-legends',
     script: 'server-optimized.js',
-    instances: 1, // Single instance for 1GB RAM
-    exec_mode: 'fork', // Use fork mode instead of cluster
-    max_memory_restart: '800M', // Restart if memory exceeds 800MB
-    node_args: '--max-old-space-size=512', // Limit Node.js heap to 512MB
+    instances: 1,
+    exec_mode: 'fork',
+    max_memory_restart: '800M',
+    node_args: '--max-old-space-size=512',
     env: {
       NODE_ENV: 'production',
-      PORT: 3000
+      PORT: 3000,
+      MUSIC_DIR: '/home/purple/Music'
     },
-    log_file: '/var/log/zed-legends.log',
-    error_file: '/var/log/zed-legends-error.log',
-    out_file: '/var/log/zed-legends-out.log',
-    time: true
+    log_file: './logs/combined.log',
+    error_file: './logs/error.log',
+    out_file: './logs/out.log',
+    time: true,
+    autorestart: true,
+    watch: false,
+    max_restarts: 10,
+    min_uptime: '10s'
   }]
 }
