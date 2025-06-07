@@ -11,7 +11,9 @@
     "server": "node server.js",
     "dev:server": "nodemon server.js",
     "dev:all": "concurrently \"npm run dev:server\" \"npm run dev\"",
-    "start:all": "concurrently \"npm run server\" \"npm run start\""
+    "start:all": "concurrently \"npm run server\" \"npm run start\"",
+    "build:static": "next build && next export",
+    "start:optimized": "node server-optimized.js"
   },
   "keywords": [
     "music",

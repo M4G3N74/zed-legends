@@ -3,10 +3,10 @@
 # Run this script on your local machine
 
 # Configuration
-SERVER_USER="your-username"  # Replace with your VPS username
-SERVER_IP="your-server-ip"   # Replace with your VPS IP address
+SERVER_USER="root"  # Replace with your VPS username
+SERVER_IP="102.208.228.112"   # Replace with your VPS IP address
 REMOTE_MUSIC_DIR="/opt/zambian-legends/music"
-LOCAL_MUSIC_DIR="./music"    # Replace with the path to your local music directory
+LOCAL_MUSIC_DIR="/home/purple/Music"    # Replace with the path to your local music directory
 
 # Check if local music directory exists
 if [ ! -d "$LOCAL_MUSIC_DIR" ]; then
