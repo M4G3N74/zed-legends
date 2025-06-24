@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useRef, useCallback } from 'react';
 import { apiEndpoints, fetchFromAPI } from '../../lib/api';
 
 const LibraryContext = createContext();
@@ -44,10 +44,10 @@ function libraryReducer(state, action) {
 
 export const LibraryProvider = ({ children }) => {
   const [state, dispatch] = useReducer(libraryReducer, initialState);
+  const hasFetchedOnce = useRef(false);
 
-  const fetchSongs = async (page = 1, search = '', sortBy = 'artist') => {
+  const fetchSongs = useCallback(async (page = 1, search = '', sortBy = 'artist') => {
     dispatch({ type: 'SET_LOADING', payload: true });
-    
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -55,18 +55,21 @@ export const LibraryProvider = ({ children }) => {
         search,
         sortBy,
       });
-      
       const data = await fetchFromAPI(`${apiEndpoints.songs}?${params}`);
-      
-      dispatch({ 
-        type: 'SET_SONGS', 
-        payload: data
-      });
+      dispatch({ type: 'SET_SONGS', payload: data });
     } catch (error) {
       console.error('Error fetching songs:', error);
       dispatch({ type: 'SET_ERROR', payload: 'Failed to fetch songs' });
     }
-  };
+  }, [state.songsPerPage]);
+
+  // Only fetch once on mount
+  useEffect(() => {
+    if (!hasFetchedOnce.current) {
+      fetchSongs();
+      hasFetchedOnce.current = true;
+    }
+  }, [fetchSongs]);
 
   const searchSongs = (query) => {
     dispatch({ type: 'SET_SEARCH', payload: query });
@@ -83,9 +86,9 @@ export const LibraryProvider = ({ children }) => {
     fetchSongs(page, state.searchQuery, state.sortBy);
   };
 
-  useEffect(() => {
-    fetchSongs();
-  }, []);
+  const refreshLibrary = () => {
+    fetchSongs(state.currentPage, state.searchQuery, state.sortBy);
+  };
 
   const value = {
     ...state,
@@ -93,7 +96,7 @@ export const LibraryProvider = ({ children }) => {
     searchSongs,
     sortSongs,
     changePage,
-    refreshLibrary: () => fetchSongs(state.currentPage, state.searchQuery, state.sortBy),
+    refreshLibrary,
   };
 
   return (

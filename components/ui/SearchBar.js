@@ -158,7 +158,7 @@ export default function SearchBar() {
         clearTimeout(resultCountTimeoutRef.current);
       }
     };
-  }, [query, isSearching, isLoading, pagination.total]);
+  }, [query, isSearching, isLoading, pagination?.total]);
 
   // Effect to update search error state
   useEffect(() => {
@@ -187,7 +187,7 @@ export default function SearchBar() {
         {/* Search result count */}
         {showResultCount && query && !searchError && (
           <div className="search-result-count absolute -top-8 left-0 right-0 text-center text-sm text-mauve animate-fade-in">
-            Found {pagination.total} {pagination.total === 1 ? 'song' : 'songs'} matching "{query}"
+            Found {pagination?.total ?? 0} {pagination?.total === 1 ? 'song' : 'songs'} matching "{query}"
           </div>
         )}
 

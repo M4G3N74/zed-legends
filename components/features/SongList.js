@@ -26,7 +26,7 @@ export default function SongList() {
     observerRef.current = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         // If the load more trigger is visible and we have more songs to load
-        if (entry.isIntersecting && pagination.hasMore && !isLoading) {
+        if (entry.isIntersecting && pagination?.hasMore && !isLoading) {
           // Load the next page
           const nextPage = pagination.currentPage + 1;
           fetchSongs(false, nextPage, true);
@@ -49,7 +49,7 @@ export default function SongList() {
         observerRef.current.disconnect();
       }
     };
-  }, [paginationMode, pagination.hasMore, pagination.currentPage, isLoading, fetchSongs]);
+  }, [paginationMode, pagination?.hasMore, pagination?.currentPage, isLoading, fetchSongs]);
 
   // Handle scroll to show/hide scroll to top button
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function SongList() {
           ))}
 
           {/* Load more trigger for infinite scroll */}
-          {paginationMode === 'infinite' && pagination.hasMore && (
+          {paginationMode === 'infinite' && pagination?.hasMore && (
             <li id="load-more-trigger" className="py-4 text-center">
               <div className="load-more-text text-muted">
                 {isLoading ? (

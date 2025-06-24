@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLibrary } from './LibraryContext';
 
 const PlayerContext = createContext();
@@ -16,6 +16,8 @@ export function PlayerProvider({ children }) {
   const [bassBoost, setBassBoost] = useState(false);
   const [megaBoost, setMegaBoost] = useState(false);
   const [autoplay, setAutoplay] = useState(true);
+  const [initialSongLoaded, setInitialSongLoaded] = useState(false);
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
 
   const audioRef = useRef(null);
   const playHistoryRef = useRef([]);
@@ -122,53 +124,63 @@ export function PlayerProvider({ children }) {
 
   // Load a song
   const loadSong = useCallback((song) => {
-    if (!song) return;
+    if (!song || !(song.file || song.path || song.url)) {
+      console.log('No song file, path, or url provided to loadSong', song);
+      return;
+    }
 
-    console.log('Loading song:', song.title);
-
-    // Update current song
+    const fileName = song.file || song.path;
+    const fileUrl = song.url || `/music/${encodeURIComponent(fileName)}`;
+    console.log('Loading song:', song.title, fileUrl);
     setCurrentSong(song);
 
-    // Update audio source
     if (audioRef.current) {
-      const songPath = `/music/${encodeURIComponent(song.file)}`;
-      console.log('Song path:', songPath);
-
-      audioRef.current.src = songPath;
+      audioRef.current.src = fileUrl;
+      console.log('Audio src set to:', audioRef.current.src);
       audioRef.current.load();
       audioRef.current.volume = volume;
     }
-
-    // Track this interaction
     trackUserInteraction('play', song.id);
   }, [volume, trackUserInteraction]);
 
-  // Play the current song
-  const playSong = useCallback(() => {
-    if (!audioRef.current) return;
-
-    console.log('Playing song');
-
-    const playPromise = audioRef.current.play();
-
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        console.error('Error playing audio:', error);
-
-        if (error.name === 'NotAllowedError') {
-          alert('Autoplay was blocked. Please click play to start playback.');
-        }
-      });
+  // Play a song (or the current one)
+  const playSong = useCallback((song = null) => {
+    if (typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent) && !userHasInteracted) {
+      console.log('Playback blocked: waiting for user gesture on mobile.');
+      return;
     }
-  }, []);
+    setUserHasInteracted(true);
+    console.log('playSong called with:', song);
+    const songToPlay = song || currentSong;
+    if (!songToPlay) {
+        if (songs && songs.length > 0) {
+            console.log('First song in list:', songs[0]);
+            loadSong(songs[0]);
+            audioRef.current?.play().catch(e => console.error("Playback error:", e));
+        }
+        return;
+    }
 
-  // Pause the current song
-  const pauseSong = useCallback(() => {
-    if (!audioRef.current) return;
+    if (song && song.id !== currentSong?.id) {
+        loadSong(song);
+        const playWhenReady = () => audioRef.current?.play().catch(e => console.error("Playback error on load:", e));
+        audioRef.current?.addEventListener('canplaythrough', playWhenReady, { once: true });
+    } else {
+        audioRef.current?.play().catch(e => console.error("Playback error:", e));
+    }
+  }, [currentSong, songs, loadSong, userHasInteracted]);
 
-    console.log('Pausing song');
-    audioRef.current.pause();
-  }, []);
+  // Effect to load a random song on initial app load when songs are available
+  useEffect(() => {
+    if (!initialSongLoaded && songs && songs.length > 0) {
+      const randomIndex = Math.floor(Math.random() * songs.length);
+      const randomSong = songs[randomIndex];
+      
+      console.log("Loading initial random song:", randomSong.title);
+      playSong(randomSong);
+      setInitialSongLoaded(true);
+    }
+  }, [songs, initialSongLoaded, playSong]);
 
   // Play next song
   const playNextSong = useCallback(() => {
@@ -177,6 +189,7 @@ export function PlayerProvider({ children }) {
     console.log('Playing next song');
 
     let nextSongIndex = -1;
+    const playNext = autoplay;
 
     // Handle different playback modes
     if (shuffle) {
@@ -186,7 +199,11 @@ export function PlayerProvider({ children }) {
       if (availableSongs.length === 0) return;
 
       const randomIndex = Math.floor(Math.random() * availableSongs.length);
-      loadSong(availableSongs[randomIndex]);
+      if (autoplay) {
+        playSong(availableSongs[randomIndex]);
+      } else {
+        loadSong(availableSongs[randomIndex]);
+      }
     } else {
       // Find current song index
       const currentIndex = songs.findIndex(song => song.id === currentSong.id);
@@ -199,22 +216,46 @@ export function PlayerProvider({ children }) {
         if (nextSongIndex >= songs.length) {
           if (repeat === 'all') {
             nextSongIndex = 0;
-          } else if (!autoplay) {
+          } else if (!playNext) {
             // Stop playback if we're at the end and not repeating
             return;
           } else {
-            nextSongIndex = 0; // Default to first song if autoplay is on
+            nextSongIndex = 1; // Default to first song if autoplay is on
           }
         }
 
         // Load and play next song
-        loadSong(songs[nextSongIndex]);
+        if (autoplay) {
+          playSong(songs[nextSongIndex]);
+        } else {
+          loadSong(songs[nextSongIndex]);
+        }
       }
     }
-
-    // Play the song if autoplay is enabled
-    if (autoplay) playSong();
   }, [currentSong, songs, shuffle, repeat, autoplay, loadSong, playSong]);
+
+  useEffect(() => {
+    const audioEl = audioRef.current;
+    const handleEnded = () => playNextSong();
+
+    if (audioEl) {
+      audioEl.addEventListener('ended', handleEnded);
+    }
+
+    return () => {
+      if (audioEl) {
+        audioEl.removeEventListener('ended', handleEnded);
+      }
+    };
+  }, [playNextSong]);
+
+  // Pause the current song
+  const pauseSong = useCallback(() => {
+    if (!audioRef.current) return;
+
+    console.log('Pausing song');
+    audioRef.current.pause();
+  }, []);
 
   // Play previous song
   const playPreviousSong = useCallback(() => {
@@ -244,10 +285,13 @@ export function PlayerProvider({ children }) {
       }
 
       // Load and play previous song
-      loadSong(songs[prevSongIndex]);
-      if (isPlaying) playSong();
+      if (autoplay) {
+        playSong(songs[prevSongIndex]);
+      } else {
+        loadSong(songs[prevSongIndex]);
+      }
     }
-  }, [currentSong, songs, repeat, isPlaying, loadSong, playSong]);
+  }, [currentSong, songs, repeat, autoplay, loadSong, playSong]);
 
   // Toggle bass boost (dummy implementation)
   const toggleBassBoost = useCallback(() => {
@@ -293,7 +337,41 @@ export function PlayerProvider({ children }) {
     }
   }, [currentSong, playSong, pauseSong, playPreviousSong, playNextSong]);
 
-  const value = {
+  const setVolumeCallback = useCallback((newVolume) => {
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+    savePlayerPreferences();
+  }, [savePlayerPreferences]);
+
+  const setCurrentTimeCallback = useCallback((time) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+    }
+  }, []);
+
+  const setRepeatCallback = useCallback((value) => {
+    setRepeat(value);
+    savePlayerPreferences();
+  }, [savePlayerPreferences]);
+
+  const setShuffleCallback = useCallback((value) => {
+    setShuffle(value);
+    savePlayerPreferences();
+  }, [savePlayerPreferences]);
+
+  const setSmartShuffleEnabledCallback = useCallback((value) => {
+    setSmartShuffleEnabled(value);
+    savePlayerPreferences();
+  }, [savePlayerPreferences]);
+
+  const setAutoplayCallback = useCallback((value) => {
+    setAutoplay(value);
+    savePlayerPreferences();
+  }, [savePlayerPreferences]);
+
+  const contextValue = useMemo(() => ({
     currentSong,
     isPlaying,
     duration,
@@ -313,38 +391,24 @@ export function PlayerProvider({ children }) {
     playPreviousSong,
     toggleBassBoost,
     trackUserInteraction,
-    setVolume: (newVolume) => {
-      setVolume(newVolume);
-      if (audioRef.current) {
-        audioRef.current.volume = newVolume;
-      }
-      savePlayerPreferences();
-    },
-    setCurrentTime: (time) => {
-      if (audioRef.current) {
-        audioRef.current.currentTime = time;
-      }
-    },
-    setRepeat: (value) => {
-      setRepeat(value);
-      savePlayerPreferences();
-    },
-    setShuffle: (value) => {
-      setShuffle(value);
-      savePlayerPreferences();
-    },
-    setSmartShuffleEnabled: (value) => {
-      setSmartShuffleEnabled(value);
-      savePlayerPreferences();
-    },
-    setAutoplay: (value) => {
-      setAutoplay(value);
-      savePlayerPreferences();
-    }
-  };
+    setVolume: setVolumeCallback,
+    setCurrentTime: setCurrentTimeCallback,
+    setRepeat: setRepeatCallback,
+    setShuffle: setShuffleCallback,
+    setSmartShuffleEnabled: setSmartShuffleEnabledCallback,
+    setAutoplay: setAutoplayCallback,
+    setUserHasInteracted,
+  }), [
+    currentSong, isPlaying, duration, currentTime, volume, repeat, shuffle,
+    smartShuffleEnabled, bassBoost, megaBoost, autoplay, audioRef,
+    loadSong, playSong, pauseSong, playNextSong, playPreviousSong,
+    toggleBassBoost, trackUserInteraction, setVolumeCallback, setCurrentTimeCallback,
+    setRepeatCallback, setShuffleCallback, setSmartShuffleEnabledCallback, setAutoplayCallback,
+    setUserHasInteracted
+  ]);
 
   return (
-    <PlayerContext.Provider value={value}>
+    <PlayerContext.Provider value={contextValue}>
       {children}
       <audio
         ref={audioRef}

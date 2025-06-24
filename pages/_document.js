@@ -5,7 +5,6 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta name="theme-color" content="#1e1e2e" />
         <meta name="description" content="A music streaming application with Catppuccin Mocha theme" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -19,7 +18,6 @@ export default function Document() {
 
         {/* Favicon and app icons */}
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/images/icon-192x192.png" />
 
         {/* External resources */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />

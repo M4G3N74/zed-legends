@@ -1,5 +1,6 @@
 import { usePlayer } from '../context/SimplePlayerContext';
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 
 export default function NowPlayingBar({ isMobile }) {
   const {
@@ -25,7 +26,8 @@ export default function NowPlayingBar({ isMobile }) {
     setRepeat,
     setShuffle,
     setSmartShuffleEnabled,
-    setAutoplay
+    setAutoplay,
+    setUserHasInteracted
   } = usePlayer();
 
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
@@ -86,8 +88,8 @@ export default function NowPlayingBar({ isMobile }) {
   };
 
   const handlePlayPause = () => {
+    setUserHasInteracted(true);
     console.log('Play/Pause button clicked. Current state:', isPlaying ? 'playing' : 'paused');
-
     if (isPlaying) {
       console.log('Pausing song');
       pauseSong();
@@ -126,14 +128,16 @@ export default function NowPlayingBar({ isMobile }) {
           <div className="album-art-large flex-1 flex items-center justify-center p-6">
             <div className="w-full max-w-xs aspect-square rounded-lg overflow-hidden shadow-lg">
               {currentSong?.albumArt ? (
-                <img
+                <Image
                   src={currentSong.albumArt}
                   alt={currentSong.title}
+                  width={192}
+                  height={192}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-surface flex items-center justify-center">
-                  <i className="fas fa-music text-5xl text-muted"></i>
+                  <i className="fas fa-music text-5xl text-muted" aria-label="No album art"></i>
                 </div>
               )}
             </div>
@@ -241,6 +245,17 @@ export default function NowPlayingBar({ isMobile }) {
               className="download-button text-muted hover:text-text"
               aria-label="Download song"
               title="Download song"
+              onClick={() => {
+                if (currentSong?.path) {
+                  const url = `/api/download?path=${encodeURIComponent(currentSong.path)}`;
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = currentSong.title ? `${currentSong.title}.mp3` : 'download.mp3';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              }}
             >
               <i className="fas fa-download"></i>
             </button>
@@ -256,13 +271,15 @@ export default function NowPlayingBar({ isMobile }) {
           >
             <div className="album-art w-12 h-12 rounded-md bg-background flex items-center justify-center overflow-hidden">
               {currentSong?.albumArt ? (
-                <img
+                <Image
                   src={currentSong.albumArt}
                   alt={currentSong.title}
+                  width={48}
+                  height={48}
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <i className="fas fa-music text-muted"></i>
+                <i className="fas fa-music text-muted" aria-label="No album art"></i>
               )}
             </div>
 
@@ -313,6 +330,17 @@ export default function NowPlayingBar({ isMobile }) {
                   className="download-button p-2 text-muted hover:text-text"
                   aria-label="Download song"
                   title="Download song"
+                  onClick={() => {
+                    if (currentSong?.path) {
+                      const url = `/api/download?path=${encodeURIComponent(currentSong.path)}`;
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = currentSong.title ? `${currentSong.title}.mp3` : 'download.mp3';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }
+                  }}
                 >
                   <i className="fas fa-download"></i>
                 </button>

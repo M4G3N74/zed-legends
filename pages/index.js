@@ -3,14 +3,9 @@ import Layout from '../components/layout/Layout';
 import SongList from '../components/features/SongList';
 import Visualizer from '../components/ui/Visualizer';
 import { useLibrary } from '../components/context/LibraryContext';
-import { useEffect } from 'react';
 
 export default function Home() {
-  const { fetchSongs, isLoading, error } = useLibrary();
-
-  useEffect(() => {
-    fetchSongs();
-  }, [fetchSongs]);
+  const { isLoading, error } = useLibrary();
 
   return (
     <>

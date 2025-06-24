@@ -39,7 +39,7 @@ export default function Layout({ children }) {
 
             <div className="flex items-center gap-2">
               <div className="text-sm text-muted flex items-center gap-1">
-                <span>{pagination.total} songs in library</span>
+                <span>{pagination?.total ?? 0} songs in library</span>
                 <span className="text-xs text-muted cursor-help" title="If the song count appears incorrect, click the refresh button to rescan your music library">
                   <i className="fas fa-question-circle"></i>
                 </span>

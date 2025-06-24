@@ -9,14 +9,25 @@ export default function SongItem({ song, isActive }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
-  const { currentSong, isPlaying, loadSong, playSong } = usePlayer();
+  const { isPlaying, pauseSong, playSong } = usePlayer();
+
   const { updateSongMetadata, deleteSong } = useLibrary();
 
-  // Handle song click to play
-  const handleSongClick = () => {
-    // Load and play the song
-    loadSong(song);
-    playSong();
+  const handleItemClick = () => {
+    if (isActive) {
+      if (isPlaying) {
+        pauseSong();
+      } else {
+        playSong();
+      }
+    } else {
+      playSong(song);
+    }
+  };
+
+  const handlePlayClick = (e) => {
+    e.stopPropagation();
+    handleItemClick();
   };
 
   // Handle edit button click
@@ -59,15 +70,15 @@ export default function SongItem({ song, isActive }) {
   return (
     <>
       <li
-        className={`song-item group relative flex items-center p-2 rounded-md transition-colors ${
+        className={`song-item group relative flex items-center p-2 rounded-md transition-colors cursor-pointer ${
           isActive ? 'bg-surface' : 'hover:bg-surface/50'
         }`}
-        onClick={handleSongClick}
+        onClick={handleItemClick}
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}
       >
-        {/* Song thumbnail */}
-        <div className="song-thumbnail w-10 h-10 rounded bg-background flex items-center justify-center overflow-hidden mr-3">
+        {/* Song thumbnail & Play/Pause button */}
+        <div className="relative w-10 h-10 rounded bg-background flex items-center justify-center overflow-hidden mr-3">
           {song.albumArt ? (
             <img
               src={song.albumArt}
@@ -78,6 +89,19 @@ export default function SongItem({ song, isActive }) {
           ) : (
             <i className="fas fa-music text-muted"></i>
           )}
+          <button
+            onClick={handlePlayClick}
+            className={`absolute inset-0 flex items-center justify-center w-full h-full bg-black/50 transition-opacity ${
+              isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+            }`}
+            aria-label={isActive && isPlaying ? 'Pause' : 'Play'}
+          >
+            {isActive && isPlaying ? (
+              <i className="fas fa-pause text-white text-lg"></i>
+            ) : (
+              <i className="fas fa-play text-white text-lg"></i>
+            )}
+          </button>
         </div>
 
         {/* Song info */}
@@ -94,9 +118,9 @@ export default function SongItem({ song, isActive }) {
         </div>
 
         {/* Song actions - visible on hover or on mobile touch */}
-        <div className={`song-actions flex items-center gap-2 ${
-          showActions || isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        } transition-opacity`}>
+        <div className={`song-actions flex items-center gap-2 transition-opacity ${
+          showActions || isActive ? 'opacity-100' : 'opacity-0'
+        }`}>
           <button
             className="edit-button p-2 text-muted hover:text-text"
             onClick={handleEditClick}

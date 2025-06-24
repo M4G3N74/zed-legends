@@ -40,9 +40,9 @@ export default function Sidebar({ isMobile }) {
 
       {!isMobile && (
         <div className="sidebar-footer absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between border-t border-overlay">
-          <div className="song-count flex items-center gap-2" title={`${pagination.total} songs in library`}>
+          <div className="song-count flex items-center gap-2" title={`${pagination?.total ?? 0} songs in library`}>
             <i className="fas fa-music text-muted"></i>
-            <span className="text-muted">{pagination.total}</span>
+            <span className="text-muted">{pagination?.total ?? 0}</span>
           </div>
           <button 
             onClick={toggleTheme} 

@@ -566,17 +566,19 @@ async function fetchSongs(isRefresh = false, page = 1, append = false) {
     }
 
     const data = await response.json();
-    const { pagination, songs } = data;
 
-    // Update pagination state
-    playerState.currentPage = pagination.page;
-    playerState.totalPages = pagination.totalPages;
-    playerState.hasMore = pagination.hasMore;
-    playerState.totalSongs = pagination.total;
+    // Check if pagination data exists
+    if (data.pagination) {
+      playerState.totalPages = data.pagination.totalPages;
+      playerState.totalSongs = data.pagination.total;
+    } else {
+      // Fallback if pagination data is missing
+      playerState.totalPages = 1;
+      playerState.totalSongs = data.songs ? data.songs.length : 0;
+    }
 
-    // If appending in infinite scroll mode, add to existing songs, otherwise replace
-    if (append && playerState.paginationMode === 'infinite') {
-      playerState.songs = [...playerState.songs, ...songs];
+    if (append) {
+      playerState.songs = [...playerState.songs, ...data.songs];
 
       // Remove the loading indicator
       const loadingItem = document.getElementById('loading-more');
@@ -584,19 +586,22 @@ async function fetchSongs(isRefresh = false, page = 1, append = false) {
         loadingItem.remove();
       }
     } else {
-      playerState.songs = songs;
+      playerState.songs = data.songs;
     }
 
-    // Update the song count display
-    updateSongCount(pagination.total);
+    // Update song count display
+    if (data.pagination) {
+      updateSongCount(data.pagination.total);
+    } else {
+      updateSongCount(playerState.totalSongs);
+    }
 
-    // Update pagination display if in standard pagination mode
+    // Update pagination display if in standard mode
     if (playerState.paginationMode === 'standard') {
       updatePaginationDisplay();
     }
 
-    // Render the playlist
-    renderPlaylist(append && playerState.paginationMode === 'infinite');
+    renderPlaylist(append);
 
     // If there are songs and this is the first load, load the first song
     if (playerState.songs.length > 0 && !isRefresh && !append && page === 1) {
