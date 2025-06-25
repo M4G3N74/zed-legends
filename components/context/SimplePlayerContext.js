@@ -479,7 +479,7 @@ export function PlayerProvider({ children }) {
       {playbackPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <div className="bg-surface p-8 rounded-lg shadow-lg flex flex-col items-center">
-            <p className="text-lg font-semibold mb-4">Tap to start playback</p>
+            <p className="text-lg font-semibold mb-4">My site uses background audio to play music. Please tap to start playback.</p>
             <button
               onClick={handleUserPlaybackUnlock}
               className="px-6 py-2 bg-mauve text-background rounded-lg text-lg font-bold hover:bg-mauve/90"

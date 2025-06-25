@@ -14,7 +14,7 @@ export default function Sidebar({ isMobile }) {
   const router = useRouter();
   const { toggleTheme, isLightTheme } = useTheme();
   const { pagination } = useLibrary();
-  const { user } = useUser();
+  const { user, role } = useUser();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -55,6 +55,14 @@ export default function Sidebar({ isMobile }) {
             <span>Dashboard</span>
           </Link>
         </li>
+        {role === 'admin' && (
+          <li className={`nav-item ${router.pathname === '/user-management' ? 'text-mauve' : 'text-text'}`}>
+            <Link href="/user-management" className="flex items-center gap-3 p-2 rounded-md hover:bg-overlay">
+              <i className="fas fa-users-cog"></i>
+              <span>User Management</span>
+            </Link>
+          </li>
+        )}
       </ul>
 
       {!isMobile && (

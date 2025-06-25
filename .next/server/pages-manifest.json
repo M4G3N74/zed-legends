@@ -3,6 +3,8 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/dashboard": "pages/dashboard.js",
+  "/api/r2/list-files": "pages/api/r2/list-files.js",
   "/login": "pages/login.js",
-  "/": "pages/index.js"
+  "/api/users": "pages/api/users.js",
+  "/user-management": "pages/user-management.js"
 }

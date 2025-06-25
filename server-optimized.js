@@ -102,7 +102,8 @@ const server = http.createServer(async (req, res) => {
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
-    'https://zed-legends.vercel.app', // Replace with your actual Vercel URL
+    'https://zed-legends.vercel.app', // Vercel preview
+    'https://zed-legends.vercel.app', // <-- Replace with your real production domain
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
   ].filter(Boolean);
   
