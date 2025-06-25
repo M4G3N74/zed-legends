@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://zed-legends.vercel.app/sitemap.xml 

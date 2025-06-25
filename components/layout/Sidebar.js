@@ -9,15 +9,15 @@ export default function Sidebar({ isMobile }) {
   const { pagination } = useLibrary();
 
   return (
-    <nav className={`sidebar bg-surface ${isMobile ? 'h-16' : 'w-64 h-full fixed left-0 top-0'}`}>
+    <nav className={`sidebar bg-surface ${isMobile ? 'h-16' : 'w-48 md:w-48 lg:w-64 h-full fixed left-0 top-0'}`}>
       {!isMobile && (
-        <div className="logo p-4 flex items-center gap-2">
+        <div className="logo p-4 md:p-3 flex items-center gap-2">
           <i className="fas fa-music text-mauve text-xl"></i>
           <h1 className="text-xl font-bold">Zambian Legends</h1>
         </div>
       )}
 
-      <ul className={`nav-menu ${isMobile ? 'flex items-center justify-around w-full' : 'p-4 space-y-2'}`}>
+      <ul className={`nav-menu ${isMobile ? 'flex items-center justify-around w-full' : 'p-4 md:p-3 space-y-2'}`}>
         <li className={`nav-item ${router.pathname === '/' ? 'text-mauve' : 'text-text'}`}>
           <Link href="/" className="flex items-center gap-3 p-2 rounded-md hover:bg-overlay">
             <i className="fas fa-home"></i>
@@ -33,7 +33,7 @@ export default function Sidebar({ isMobile }) {
         <li className={`nav-item ${router.pathname === '/playlists' ? 'text-mauve' : 'text-text'}`}>
           <Link href="/playlists" className="flex items-center gap-3 p-2 rounded-md hover:bg-overlay">
             <i className="fas fa-list"></i>
-            <span>Playlists</span>
+            <span>Top 10 </span>
           </Link>
         </li>
       </ul>

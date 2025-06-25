@@ -1,3 +1,4 @@
+import SEO from '../components/ui/SEO';
 import { useEffect, useState } from 'react';
 import SongItem from '../components/features/SongItem';
 import Layout from '../components/layout/Layout';
@@ -27,6 +28,10 @@ export default function PlaylistsPage() {
 
   return (
     <Layout>
+      <SEO
+        title="Zed Legends | Top 10 Playlists"
+        description="Listen to the top 10 most liked Zambian songs on Zed Legends. Updated dynamically by user likes."
+      />
       <div className="max-w-2xl mx-auto py-8">
         <h1 className="text-2xl font-bold mb-6 text-center">Top 10 Most Liked Songs</h1>
         {loading ? (

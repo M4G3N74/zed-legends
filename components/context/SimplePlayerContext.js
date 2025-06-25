@@ -220,7 +220,7 @@ export function PlayerProvider({ children }) {
             // Stop playback if we're at the end and not repeating
             return;
           } else {
-            nextSongIndex = 1; // Default to first song if autoplay is on
+            nextSongIndex = 0; // Default to first song if autoplay is on
           }
         }
 

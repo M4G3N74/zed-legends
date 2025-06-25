@@ -88,12 +88,12 @@ export default function SongList() {
 
   return (
     <div className="relative">
-      {/* Playlist container */}
+      {/* Playlist container - grid on md+, list on mobile */}
       <div
         ref={containerRef}
         className="playlist-container max-h-[calc(100vh-300px)] overflow-y-auto pr-1"
       >
-        <ul className="playlist space-y-1">
+        <ul className="playlist space-y-1 grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-3">
           {songs.map((song) => (
             <SongItem
               key={song.id}

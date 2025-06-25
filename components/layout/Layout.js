@@ -27,11 +27,11 @@ export default function Layout({ children }) {
 
   return (
     <div className="app-container min-h-screen flex flex-col md:flex-row">
-      {/* Sidebar - fixed at bottom on mobile, left side on desktop */}
+      {/* Sidebar - responsive width: mobile (h-16), md (w-48), lg (w-64) */}
       <Sidebar isMobile={isMobile} />
 
-      {/* Main content */}
-      <main className="flex-1 md:ml-64 p-4 md:p-6 pb-32 md:pb-24">
+      {/* Main content - responsive margin-left to match sidebar */}
+      <main className="flex-1 md:ml-48 lg:ml-64 p-4 md:p-6 pb-32 md:pb-24">
         {/* Top header with search and controls */}
         <header className="content-header mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

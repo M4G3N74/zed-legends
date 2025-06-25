@@ -6,18 +6,18 @@ export default function Document() {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="theme-color" content="#1e1e2e" />
-        <meta name="description" content="A music streaming application with Catppuccin Mocha theme" />
+        <meta name="description" content="Your favorite Zambian legends streaming site" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Music Stream" />
+        <meta name="apple-mobile-web-app-title" content="Zambian Legends" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="application-name" content="Music Stream" />
+        <meta name="application-name" content="Zambian Legends" />
 
         {/* PWA manifest */}
         <link rel="manifest" href="/manifest.json" />
 
         {/* Favicon and app icons */}
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="./images/icon-192x192.png" />
 
         {/* External resources */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />

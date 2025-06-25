@@ -1,10 +1,8 @@
 {
   "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/_error": "pages/_error.js",
   "/": "pages/index.js",
-  "/api/track-interaction": "pages/api/track-interaction.js",
   "/playlists": "pages/playlists.js",
-  "/api/songs/most-liked": "pages/api/songs/most-liked.js",
-  "/api/songs": "pages/api/songs.js"
+  "/library": "pages/library.js"
 }
