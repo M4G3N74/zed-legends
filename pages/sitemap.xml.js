@@ -1,4 +1,5 @@
 export default function handler(req, res) {
+  if (!res) return;
   const baseUrl = 'https://zed-legends.vercel.app';
   const today = new Date().toISOString().split('T')[0];
   res.setHeader('Content-Type', 'application/xml');

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { usePlayer } from '../context/SimplePlayerContext';
 import { useLibrary } from '../context/LibraryContext';
 import EditMetadataModal from './EditMetadataModal';
-import DeleteConfirmationModal from './DeleteConfirmationModal';
+// import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 export default function SongItem({ song, isActive }) {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -130,14 +130,14 @@ export default function SongItem({ song, isActive }) {
             <i className="fas fa-edit"></i>
           </button>
 
-          <button
+          {/* <button
             className="delete-button p-2 text-muted hover:text-love"
             onClick={handleDeleteClick}
             aria-label="Delete song"
             title="Delete song"
           >
             <i className="fas fa-trash-alt"></i>
-          </button>
+          </button> */}
         </div>
 
         {/* Playing indicator */}

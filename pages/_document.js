@@ -17,7 +17,10 @@ export default function Document() {
         <link rel="manifest" href="/manifest.json" />
 
         {/* Favicon and app icons */}
-        <link rel="icon" href="./images/icon-192x192.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/icon-192x192.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
 
         {/* External resources */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />

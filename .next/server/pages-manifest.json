@@ -1,8 +1,8 @@
 {
   "/_app": "pages/_app.js",
-  "/_document": "pages/_document.js",
   "/_error": "pages/_error.js",
-  "/": "pages/index.js",
-  "/playlists": "pages/playlists.js",
-  "/library": "pages/library.js"
+  "/_document": "pages/_document.js",
+  "/library": "pages/library.js",
+  "/api/track-interaction": "pages/api/track-interaction.js",
+  "/playlists": "pages/playlists.js"
 }

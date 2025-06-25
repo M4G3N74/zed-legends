@@ -318,14 +318,6 @@ export default function NowPlayingBar({ isMobile }) {
                 <i className="fas fa-heart"></i>
               </button>
               <button
-                className="control-button text-muted hover:text-blue-400"
-                aria-label="Dislike song"
-                title="Dislike this song (improves smart shuffle)"
-                onClick={() => trackUserInteraction('dislike', currentSong?.id)}
-              >
-                <i className="fas fa-thumbs-down"></i>
-              </button>
-              <button
                 className="download-button p-2 text-muted hover:text-text"
                 aria-label="Download song"
                 title="Download song"

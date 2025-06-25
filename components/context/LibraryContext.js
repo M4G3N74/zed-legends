@@ -90,6 +90,24 @@ export const LibraryProvider = ({ children }) => {
     fetchSongs(state.currentPage, state.searchQuery, state.sortBy);
   };
 
+  const updateSongMetadata = useCallback(async (songId, metadata) => {
+    try {
+      // Note: This API endpoint is a placeholder.
+      // To fully implement this, the backend needs to be able to
+      // edit song metadata in the source (e.g., R2 or a database).
+      await fetchFromAPI(apiEndpoints.updateMetadata, {
+        method: 'PUT',
+        body: JSON.stringify({ songId, ...metadata }),
+      });
+      // Refresh library to reflect changes
+      refreshLibrary();
+    } catch (error) {
+      console.error('Error updating song metadata:', error);
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to update song metadata' });
+      throw error; // Re-throw to be caught in the component
+    }
+  }, []);
+
   const value = {
     ...state,
     fetchSongs,
@@ -97,6 +115,7 @@ export const LibraryProvider = ({ children }) => {
     sortSongs,
     changePage,
     refreshLibrary,
+    updateSongMetadata,
   };
 
   return (

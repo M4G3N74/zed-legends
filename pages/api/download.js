@@ -1,6 +1,7 @@
 // No import needed for fetch in Next.js API routes
 
 export default async function handler(req, res) {
+  if (!res) return;
   const { path: filePath } = req.query;
   if (!filePath) {
     res.status(400).json({ error: 'Missing file path' });

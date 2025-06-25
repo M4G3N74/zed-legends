@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       ]);
       if (error) {
         console.error('Supabase insert error:', error);
-        return res.status(500).json({ error: 'Failed to save like interaction' });
+        return res.status(500).json({ error: 'Failed to save like interaction', details: error });
       }
     }
 

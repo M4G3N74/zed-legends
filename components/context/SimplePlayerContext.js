@@ -101,8 +101,27 @@ export function PlayerProvider({ children }) {
       localStorage.setItem('skipHistory', JSON.stringify(skipHistoryRef.current));
     }
 
-    // Send to backend if smart shuffle is enabled
-    if (smartShuffleEnabled) {
+    // Only send like to backend
+    if (interactionType === 'like') {
+      console.log('Sending like interaction to backend:', { songId, userId: localStorage.getItem('userId') || 'anonymous' });
+      try {
+        fetch('/api/track-interaction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: localStorage.getItem('userId') || 'anonymous',
+            songId,
+            interactionType,
+            timestamp: new Date().toISOString()
+          }),
+        }).catch(error => {
+          console.error('Failed to send interaction data to backend:', error);
+        });
+      } catch (error) {
+        console.error('Failed to send interaction data to backend:', error);
+      }
+    } else if (smartShuffleEnabled) {
+      // Only send play/skip to backend if smart shuffle is enabled
       try {
         fetch('/api/track-interaction', {
           method: 'POST',
