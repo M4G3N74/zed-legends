@@ -23,6 +23,22 @@ export default function LoginPage() {
     if (!error) window.location.href = '/dashboard';
   };
 
+  const handleMagicLink = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    const redirectTo = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : undefined);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        redirectTo: redirectTo + '/dashboard',
+      },
+    });
+    if (error) setError(error.message);
+    setLoading(false);
+    if (!error) alert('Check your email for the magic link!');
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
       <form onSubmit={handleLogin} className="bg-surface p-8 rounded-lg shadow-md w-full max-w-sm">
@@ -50,6 +66,14 @@ export default function LoginPage() {
           disabled={loading}
         >
           {loading ? 'Logging in...' : 'Login'}
+        </button>
+        <button
+          type="button"
+          onClick={handleMagicLink}
+          className="w-full mt-2 bg-mauve/80 text-background py-2 rounded hover:bg-mauve/90"
+          disabled={loading}
+        >
+          {loading ? 'Sending magic link...' : 'Send Magic Link'}
         </button>
       </form>
       <div className="mt-4 text-center">
