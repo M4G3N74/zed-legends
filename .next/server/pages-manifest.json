@@ -3,7 +3,6 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/dashboard": "pages/dashboard.js",
-  "/": "pages/index.js",
   "/login": "pages/login.js",
-  "/api/track-interaction": "pages/api/track-interaction.js"
+  "/": "pages/index.js"
 }

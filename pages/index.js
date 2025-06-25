@@ -34,9 +34,9 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "MusicStore",
     "name": "Zed Legends",
-    "url": "https://yourdomain.com/",
+    "url": "https://zed-legends.vercel.app/",
     "description": "Discover and stream legendary Zambian music.",
-    "image": "https://yourdomain.com/images/album-art.png"
+    "image": "https://zed-legends.vercel.app/images/album-art.png"
   };
 
   return (
