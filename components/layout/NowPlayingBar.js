@@ -236,7 +236,10 @@ export default function NowPlayingBar({ isMobile }) {
               className="control-button text-muted hover:text-pink-400"
               aria-label="Like song"
               title="Like this song"
-              onClick={() => trackUserInteraction('like', currentSong?.id)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent player from expanding
+                trackUserInteraction('like', currentSong?.id);
+              }}
             >
               <i className="fas fa-heart"></i>
             </button>
@@ -313,7 +316,10 @@ export default function NowPlayingBar({ isMobile }) {
                 className="control-button text-muted hover:text-pink-400"
                 aria-label="Like song"
                 title="Like this song"
-                onClick={() => trackUserInteraction('like', currentSong?.id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent player from expanding
+                  trackUserInteraction('like', currentSong?.id);
+                }}
               >
                 <i className="fas fa-heart"></i>
               </button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { usePlayer } from '../context/SimplePlayerContext';
 import { useLibrary } from '../context/LibraryContext';
 import EditMetadataModal from './EditMetadataModal';
@@ -43,18 +43,22 @@ export default function SongItem({ song, isActive }) {
   };
 
   // Handle metadata update
-  const handleMetadataUpdate = async (metadata) => {
+  const handleMetadataUpdate = useCallback(async (metadata) => {
     try {
       await updateSongMetadata(song.id, {
         ...metadata,
-        file: song.file
+        file: song.path
       });
       setShowEditModal(false);
     } catch (error) {
       console.error('Error updating metadata:', error);
       // Show error notification
     }
-  };
+  }, [song.id, song.path, updateSongMetadata]);
+
+  const handleCloseModal = useCallback(() => {
+    setShowEditModal(false);
+  }, []);
 
   // Handle song deletion
   const handleDeleteConfirm = async () => {
@@ -150,7 +154,7 @@ export default function SongItem({ song, isActive }) {
       {showEditModal && (
         <EditMetadataModal
           song={song}
-          onClose={() => setShowEditModal(false)}
+          onClose={handleCloseModal}
           onSave={handleMetadataUpdate}
         />
       )}
