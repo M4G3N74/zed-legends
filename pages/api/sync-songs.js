@@ -1,4 +1,4 @@
-import { syncSongs } from '../../scripts/sync-r2-to-db';
+import { syncSongs } from '../../tools/sync-r2-to-db';
 
 export default async function handler(req, res) {
   // Check for secret key to prevent unauthorized access
