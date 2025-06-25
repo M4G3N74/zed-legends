@@ -92,14 +92,11 @@ export const LibraryProvider = ({ children }) => {
 
   const updateSongMetadata = useCallback(async (songId, metadata) => {
     try {
-      // Note: This API endpoint is a placeholder.
-      // To fully implement this, the backend needs to be able to
-      // edit song metadata in the source (e.g., R2 or a database).
       await fetchFromAPI(apiEndpoints.updateMetadata, {
         method: 'PUT',
         body: JSON.stringify({ songId, ...metadata }),
       });
-      // Refresh library to reflect changes
+      // Re-fetch the song list to clear any client-side cache and get fresh data.
       refreshLibrary();
     } catch (error) {
       console.error('Error updating song metadata:', error);

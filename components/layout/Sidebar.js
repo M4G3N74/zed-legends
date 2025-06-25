@@ -2,11 +2,24 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTheme } from '../context/ThemeContext';
 import { useLibrary } from '../context/LibraryContext';
+import { useUser } from '../context/UserContext';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default function Sidebar({ isMobile }) {
   const router = useRouter();
   const { toggleTheme, isLightTheme } = useTheme();
   const { pagination } = useLibrary();
+  const { user } = useUser();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
 
   return (
     <nav className={`sidebar bg-surface ${isMobile ? 'h-16' : 'w-48 md:w-48 lg:w-64 h-full fixed left-0 top-0'}`}>
@@ -33,7 +46,13 @@ export default function Sidebar({ isMobile }) {
         <li className={`nav-item ${router.pathname === '/playlists' ? 'text-mauve' : 'text-text'}`}>
           <Link href="/playlists" className="flex items-center gap-3 p-2 rounded-md hover:bg-overlay">
             <i className="fas fa-list"></i>
-            <span>Top 10 </span>
+            <span>Playlists</span>
+          </Link>
+        </li>
+        <li className={`nav-item ${router.pathname === '/dashboard' ? 'text-mauve' : 'text-text'}`}>
+          <Link href="/dashboard" className="flex items-center gap-3 p-2 rounded-md hover:bg-overlay">
+            <i className="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
           </Link>
         </li>
       </ul>
@@ -52,6 +71,15 @@ export default function Sidebar({ isMobile }) {
             <i className={`fas ${isLightTheme ? 'fa-moon' : 'fa-sun'} text-muted`}></i>
           </button>
         </div>
+      )}
+
+      {user && (
+        <button
+          onClick={handleLogout}
+          className="w-full mt-8 px-4 py-2 bg-love text-background rounded-lg hover:bg-love/90 transition-colors"
+        >
+          <i className="fas fa-sign-out-alt mr-2"></i>Logout
+        </button>
       )}
     </nav>
   );

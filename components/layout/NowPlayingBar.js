@@ -127,9 +127,9 @@ export default function NowPlayingBar({ isMobile }) {
           {/* Album art - large */}
           <div className="album-art-large flex-1 flex items-center justify-center p-6">
             <div className="w-full max-w-xs aspect-square rounded-lg overflow-hidden shadow-lg">
-              {currentSong?.albumArt ? (
+              {currentSong?.album_art || currentSong?.albumArt ? (
                 <Image
-                  src={currentSong.albumArt}
+                  src={currentSong.album_art || currentSong.albumArt}
                   alt={currentSong.title}
                   width={192}
                   height={192}
@@ -273,9 +273,9 @@ export default function NowPlayingBar({ isMobile }) {
             onClick={toggleExpandedView}
           >
             <div className="album-art w-12 h-12 rounded-md bg-background flex items-center justify-center overflow-hidden">
-              {currentSong?.albumArt ? (
+              {currentSong?.album_art || currentSong?.albumArt ? (
                 <Image
-                  src={currentSong.albumArt}
+                  src={currentSong.album_art || currentSong.albumArt}
                   alt={currentSong.title}
                   width={48}
                   height={48}

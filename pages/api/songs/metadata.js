@@ -25,11 +25,13 @@ export default async function handler(req, res) {
 
   try {
     // 1. Download the file from R2
+    console.log(`Attempting to download ${filePath} from R2...`);
     const getObjectParams = {
       Bucket: process.env.R2_BUCKET_NAME,
       Key: filePath,
     };
     const { Body, ContentType } = await s3Client.send(new GetObjectCommand(getObjectParams));
+    console.log('File downloaded successfully.');
     
     // Convert stream to buffer
     const chunks = [];
@@ -37,6 +39,7 @@ export default async function handler(req, res) {
       chunks.push(chunk);
     }
     const fileBuffer = Buffer.concat(chunks);
+    console.log(`File buffered. Size: ${fileBuffer.length} bytes.`);
 
     // 2. Update ID3 tags using node-id3
     const tags = {
@@ -45,22 +48,25 @@ export default async function handler(req, res) {
       album: album,
     };
     
-    const success = NodeID3.update(tags, fileBuffer);
+    console.log('Attempting to update ID3 tags...');
+    const updatedBuffer = NodeID3.update(tags, fileBuffer);
 
-    if (!success) {
-      // If the update fails, we can still proceed but the tags won't be written.
-      // Or we can return an error. Let's return an error for now.
+    if (!updatedBuffer) {
+      console.error('NodeID3.update failed and returned false.');
       return res.status(500).json({ error: 'Failed to update ID3 tags' });
     }
+    console.log(`ID3 tags updated. New buffer size: ${updatedBuffer.length} bytes.`);
 
     // 3. Upload the modified file back to R2
+    console.log(`Attempting to upload updated file back to R2 at ${filePath}...`);
     const putObjectParams = {
       Bucket: process.env.R2_BUCKET_NAME,
       Key: filePath,
-      Body: success, // `success` here is the new buffer with updated tags
+      Body: updatedBuffer, // Use the new buffer with updated tags
       ContentType: ContentType || 'audio/mpeg',
     };
     await s3Client.send(new PutObjectCommand(putObjectParams));
+    console.log('File uploaded successfully.');
 
     res.status(200).json({ success: true, message: 'Metadata updated and written to file.' });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLibrary } from './LibraryContext';
+import React from 'react';
 
 const PlayerContext = createContext();
 
@@ -18,6 +19,7 @@ export function PlayerProvider({ children }) {
   const [autoplay, setAutoplay] = useState(true);
   const [initialSongLoaded, setInitialSongLoaded] = useState(false);
   const [userHasInteracted, setUserHasInteracted] = useState(false);
+  const [playbackPrompt, setPlaybackPrompt] = useState(false);
 
   const audioRef = useRef(null);
   const playHistoryRef = useRef([]);
@@ -143,13 +145,22 @@ export function PlayerProvider({ children }) {
 
   // Load a song
   const loadSong = useCallback((song) => {
-    if (!song || !(song.file || song.path || song.url)) {
-      console.log('No song file, path, or url provided to loadSong', song);
+    if (!song || !(song.url || song.file || song.path)) {
+      console.log('No song url, file, or path provided to loadSong', song);
       return;
     }
 
-    const fileName = song.file || song.path;
-    const fileUrl = song.url || `/music/${encodeURIComponent(fileName)}`;
+    // Always use song.url if present
+    let fileUrl;
+    if (song.url) {
+      // Append a cache buster
+      fileUrl = song.url + `?v=${new Date().getTime()}`;
+    } else {
+      // Fallback for legacy/local files
+      const fileName = song.file || song.path;
+      fileUrl = `/music/${encodeURIComponent(fileName)}?v=${new Date().getTime()}`;
+    }
+
     console.log('Loading song:', song.title, fileUrl);
     setCurrentSong(song);
 
@@ -166,28 +177,46 @@ export function PlayerProvider({ children }) {
   const playSong = useCallback((song = null) => {
     if (typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent) && !userHasInteracted) {
       console.log('Playback blocked: waiting for user gesture on mobile.');
+      setPlaybackPrompt(true);
       return;
     }
     setUserHasInteracted(true);
+    setPlaybackPrompt(false);
     console.log('playSong called with:', song);
     const songToPlay = song || currentSong;
     if (!songToPlay) {
         if (songs && songs.length > 0) {
             console.log('First song in list:', songs[0]);
             loadSong(songs[0]);
-            audioRef.current?.play().catch(e => console.error("Playback error:", e));
+            audioRef.current?.play().catch(e => {
+              if (e.name === 'NotAllowedError') setPlaybackPrompt(true);
+              else console.error("Playback error:", e);
+            });
         }
         return;
     }
 
     if (song && song.id !== currentSong?.id) {
         loadSong(song);
-        const playWhenReady = () => audioRef.current?.play().catch(e => console.error("Playback error on load:", e));
+        const playWhenReady = () => audioRef.current?.play().catch(e => {
+          if (e.name === 'NotAllowedError') setPlaybackPrompt(true);
+          else console.error("Playback error on load:", e);
+        });
         audioRef.current?.addEventListener('canplaythrough', playWhenReady, { once: true });
     } else {
-        audioRef.current?.play().catch(e => console.error("Playback error:", e));
+        audioRef.current?.play().catch(e => {
+          if (e.name === 'NotAllowedError') setPlaybackPrompt(true);
+          else console.error("Playback error:", e);
+        });
     }
   }, [currentSong, songs, loadSong, userHasInteracted]);
+
+  // Handler for user gesture to unlock playback
+  const handleUserPlaybackUnlock = () => {
+    setUserHasInteracted(true);
+    setPlaybackPrompt(false);
+    playSong();
+  };
 
   // Effect to load a random song on initial app load when songs are available
   useEffect(() => {
@@ -447,6 +476,19 @@ export function PlayerProvider({ children }) {
           }
         }}
       />
+      {playbackPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-surface p-8 rounded-lg shadow-lg flex flex-col items-center">
+            <p className="text-lg font-semibold mb-4">Tap to start playback</p>
+            <button
+              onClick={handleUserPlaybackUnlock}
+              className="px-6 py-2 bg-mauve text-background rounded-lg text-lg font-bold hover:bg-mauve/90"
+            >
+              Tap to Play
+            </button>
+          </div>
+        </div>
+      )}
     </PlayerContext.Provider>
   );
 }

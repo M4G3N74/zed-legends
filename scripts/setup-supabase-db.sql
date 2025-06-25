@@ -1,10 +1,44 @@
 -- Create the song_likes table if it doesn't exist
-create table if not exists song_likes (
-  id uuid default uuid_generate_v4() primary key,
-  song_id text not null,
-  user_id text,
-  created_at timestamp with time zone default timezone('utc'::text, now())
+CREATE TABLE song_likes (
+    id SERIAL PRIMARY KEY,
+    song_id VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    interaction_type VARCHAR(50) NOT NULL, -- 'like', 'dislike'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(song_id, user_id, interaction_type)
 );
+
+-- Table to store song metadata cache
+CREATE TABLE songs (
+    id VARCHAR(255) PRIMARY KEY, -- Using the file hash as the ID
+    title TEXT,
+    artist TEXT,
+    album TEXT,
+    duration FLOAT,
+    path TEXT NOT NULL, -- The file key in R2
+    album_art TEXT, -- URL or path to album art
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Function to update the 'updated_at' timestamp
+CREATE OR REPLACE FUNCTION trigger_set_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to automatically update 'updated_at' on songs table
+CREATE TRIGGER set_songs_timestamp
+BEFORE UPDATE ON songs
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
+GRANT ALL PRIVILEGES ON TABLE song_likes TO postgres;
+GRANT ALL PRIVILEGES ON TABLE songs TO postgres;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO postgres;
 
 -- Enable Row Level Security
 alter table song_likes enable row level security;

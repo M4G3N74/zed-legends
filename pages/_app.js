@@ -5,6 +5,7 @@ import { LibraryProvider } from '../components/context/LibraryContext';
 import { ThemeProvider } from '../components/context/ThemeContext';
 import Head from 'next/head';
 import React from 'react';
+import { UserProvider } from '../components/context/UserContext';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -47,7 +48,9 @@ function MyApp({ Component, pageProps }) {
         <ThemeProvider>
           <LibraryProvider>
             <PlayerProvider>
-              <Component {...pageProps} />
+              <UserProvider>
+                <Component {...pageProps} />
+              </UserProvider>
             </PlayerProvider>
           </LibraryProvider>
         </ThemeProvider>

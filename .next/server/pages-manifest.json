@@ -2,9 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/library": "pages/library.js",
-  "/playlists": "pages/playlists.js",
-  "/api/track-interaction": "pages/api/track-interaction.js",
-  "/api/songs/most-liked": "pages/api/songs/most-liked.js",
-  "/api/songs": "pages/api/songs.js"
+  "/dashboard": "pages/dashboard.js",
+  "/": "pages/index.js",
+  "/login": "pages/login.js",
+  "/api/track-interaction": "pages/api/track-interaction.js"
 }

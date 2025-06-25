@@ -4,6 +4,28 @@ import SongList from '../components/features/SongList';
 import Visualizer from '../components/ui/Visualizer';
 import { useLibrary } from '../components/context/LibraryContext';
 import SEO from '../components/ui/SEO';
+import React from 'react';
+
+function BetaBanner() {
+  return (
+    <div className="fixed top-0 left-0 w-full z-50 bg-mauve text-background py-2 overflow-hidden shadow-lg">
+      <div className="whitespace-nowrap animate-marquee font-bold text-center text-lg">
+        This site is in beta testing. Please report any issues you find.
+      </div>
+      <style jsx global>{`
+        @keyframes marquee {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-marquee {
+          display: inline-block;
+          min-width: 100vw;
+          animation: marquee 60s linear infinite;
+        }
+      `}</style>
+    </div>
+  );
+}
 
 export default function Home() {
   const { isLoading, error } = useLibrary();
@@ -19,6 +41,7 @@ export default function Home() {
 
   return (
     <>
+      <BetaBanner />
       <SEO
         title="Zed Legends | Home"
         description="Discover and stream legendary Zambian music. Listen to playlists, like your favorites, and enjoy a beautiful, mobile-first music experience."
