@@ -46,7 +46,7 @@ export default function Sidebar({ isMobile }) {
         <li className={`nav-item ${router.pathname === '/playlists' ? 'text-mauve' : 'text-text'}`}>
           <Link href="/playlists" className="flex items-center gap-3 p-2 rounded-md hover:bg-overlay">
             <i className="fas fa-list"></i>
-            <span>Playlists</span>
+            <span>Top 100</span>
           </Link>
         </li>
         <li className={`nav-item ${router.pathname === '/dashboard' ? 'text-mauve' : 'text-text'}`}>

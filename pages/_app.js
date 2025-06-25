@@ -6,6 +6,7 @@ import { ThemeProvider } from '../components/context/ThemeContext';
 import Head from 'next/head';
 import React from 'react';
 import { UserProvider } from '../components/context/UserContext';
+import { Analytics } from '@vercel/analytics/react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -55,6 +56,7 @@ function MyApp({ Component, pageProps }) {
           </LibraryProvider>
         </ThemeProvider>
       </ErrorBoundary>
+      <Analytics />
     </>
   );
 }
