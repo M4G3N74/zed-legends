@@ -12,8 +12,9 @@ export default function DashboardPage() {
   const [fileBrowserKey, setFileBrowserKey] = useState(Date.now());
   const [editingFile, setEditingFile] = useState(null);
   const [syncing, setSyncing] = useState(false);
-  const [syncLogs, setSyncLogs] = useState(null);
+  const [syncResult, setSyncResult] = useState(null);
   const [syncError, setSyncError] = useState(null);
+  const [syncLogs, setSyncLogs] = useState(null);
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState('');
@@ -75,6 +76,22 @@ export default function DashboardPage() {
     }
   };
 
+  const handleTriggerSync = async () => {
+    setSyncing(true);
+    setSyncResult(null);
+    setSyncError(null);
+    try {
+      const res = await fetch('/api/webhook-sync', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Sync failed');
+      setSyncResult(data.message || 'Sync triggered successfully');
+    } catch (err) {
+      setSyncError(err.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const handleSaveMetadata = async (metadata) => {
     try {
       const response = await fetch('/api/songs/metadata', {
@@ -122,36 +139,6 @@ export default function DashboardPage() {
             {canUploadOrRename && <FileUploader onUploadSuccess={handleUploadSuccess} />}
           </div>
 
-          <div className="my-4">
-            <button
-              onClick={handleSyncSongs}
-              className="px-4 py-2 bg-mauve text-background rounded-lg hover:bg-mauve/90 transition-colors disabled:opacity-60"
-              disabled={syncing}
-            >
-              {syncing ? (
-                <span className="flex items-center gap-2"><span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-background"></span> Syncing...</span>
-              ) : (
-                <span><i className="fas fa-sync-alt mr-2"></i>Sync Songs</span>
-              )}
-            </button>
-          </div>
-
-          {syncLogs && (
-            <div className="bg-overlay p-4 rounded-lg mt-2 max-h-64 overflow-y-auto text-sm">
-              <h3 className="font-semibold mb-2">Sync Summary</h3>
-              <ul className="list-disc pl-5">
-                {syncLogs.map((log, i) => (
-                  <li key={i}>{log}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {syncError && (
-            <div className="bg-love/20 text-love p-4 rounded-lg mt-2">
-              <p>Error: {syncError}</p>
-            </div>
-          )}
-
           <div>
             <h2 className="text-2xl font-semibold mb-4">R2 Bucket Files</h2>
             <R2FileBrowser key={fileBrowserKey} onEdit={canEditMeta ? handleEdit : undefined} canRename={canUploadOrRename} />
@@ -198,6 +185,21 @@ export default function DashboardPage() {
                   </tbody>
                 </table>
               )}
+              <div className="my-4">
+                <button
+                  onClick={handleTriggerSync}
+                  className="px-4 py-2 bg-mauve text-background rounded-lg hover:bg-mauve/90 transition-colors disabled:opacity-60"
+                  disabled={syncing}
+                >
+                  {syncing ? (
+                    <span className="flex items-center gap-2"><span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-background"></span> Triggering Sync...</span>
+                  ) : (
+                    <span><i className="fas fa-sync-alt mr-2"></i>Trigger Sync</span>
+                  )}
+                </button>
+                {syncResult && <div className="mt-2 text-green-600">{syncResult}</div>}
+                {syncError && <div className="mt-2 text-love">{syncError}</div>}
+              </div>
             </div>
           )}
         </div>

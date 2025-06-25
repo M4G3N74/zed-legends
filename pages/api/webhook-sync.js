@@ -4,21 +4,25 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // (Optional) Add authentication/authorization here to restrict to admins
-  // Example: if (!req.user || !req.user.isAdmin) { ... }
+  // (Optional) Add authentication here!
 
   try {
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/sync-songs`;
-    const syncRes = await fetch(apiUrl, {
+    // Replace with your private server's URL
+    const webhookUrl = process.env.PRIVATE_SYNC_WEBHOOK_URL || 'https://your-private-server.com/sync-r2';
+    const webhookSecret = process.env.WEBHOOK_SECRET;
+
+    const syncRes = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
-        'x-sync-secret': process.env.SYNC_SECRET,
         'Content-Type': 'application/json',
+        'x-webhook-secret': webhookSecret,
       },
+      body: JSON.stringify({ trigger: 'dashboard' }),
     });
+
     const data = await syncRes.json();
     if (!syncRes.ok) throw new Error(data.error || 'Sync failed');
-    res.status(200).json(data);
+    res.status(200).json({ message: 'Sync triggered successfully', data });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
