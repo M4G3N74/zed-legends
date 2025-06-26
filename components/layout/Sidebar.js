@@ -4,16 +4,34 @@ import { useTheme } from '../context/ThemeContext';
 import { useLibrary } from '../context/LibraryContext';
 import { useUser } from '../context/UserContext';
 import { supabase } from '../../lib/supabase';
+import { useState } from 'react';
+
+function LogoutToast({ show }) {
+  if (!show) return null;
+  return (
+    <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[999] bg-mauve text-background px-4 py-2 rounded-lg shadow-lg animate-fade-in-out">
+      You have been logged out.
+    </div>
+  );
+}
 
 export default function Sidebar({ isMobile }) {
   const router = useRouter();
   const { toggleTheme, isLightTheme } = useTheme();
   const { pagination } = useLibrary();
   const { user, role } = useUser();
+  const [logoutToast, setLogoutToast] = useState(false);
+  let logoutTimeout = null;
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
+    if (typeof window !== 'undefined' && window.confirm('Are you sure you want to logout?')) {
+      await supabase.auth.signOut();
+      setLogoutToast(true);
+      logoutTimeout = setTimeout(() => {
+        setLogoutToast(false);
+        window.location.href = '/login';
+      }, 1500);
+    }
   };
 
   return (
@@ -76,7 +94,19 @@ export default function Sidebar({ isMobile }) {
         </div>
       )}
 
-      {user && (
+      {/* Mobile Logout Button (fixed bottom) */}
+      {isMobile && user && (
+        <button
+          onClick={handleLogout}
+          className="fixed bottom-4 left-4 right-4 z-50 bg-love text-background text-lg font-semibold py-3 rounded-xl shadow-lg hover:bg-love/90 transition-colors"
+          style={{ minWidth: '80%', maxWidth: 400, margin: '0 auto' }}
+        >
+          <i className="fas fa-sign-out-alt mr-2"></i>Logout
+        </button>
+      )}
+
+      {/* Desktop Logout Button (original) */}
+      {!isMobile && user && (
         <button
           onClick={handleLogout}
           className="w-full mt-8 px-4 py-2 bg-love text-background rounded-lg hover:bg-love/90 transition-colors"
@@ -84,6 +114,8 @@ export default function Sidebar({ isMobile }) {
           <i className="fas fa-sign-out-alt mr-2"></i>Logout
         </button>
       )}
+
+      <LogoutToast show={logoutToast} />
     </nav>
   );
 }

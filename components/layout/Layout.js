@@ -3,11 +3,14 @@ import Sidebar from './Sidebar';
 import NowPlayingBar from './NowPlayingBar';
 import SearchBar from '../ui/SearchBar';
 import { useLibrary } from '../context/LibraryContext';
+import { useUser } from '../context/UserContext';
+import Link from 'next/link';
 
 export default function Layout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { pagination } = useLibrary();
+  const { role } = useUser();
 
   // Check if we're on mobile
   useEffect(() => {
@@ -27,11 +30,11 @@ export default function Layout({ children }) {
 
   return (
     <div className="app-container min-h-screen flex flex-col md:flex-row">
-      {/* Sidebar - responsive width: mobile (h-16), md (w-48), lg (w-64) */}
-      <Sidebar isMobile={isMobile} />
+      {/* Sidebar - hidden on mobile */}
+      {!isMobile && <Sidebar isMobile={isMobile} />}
 
       {/* Main content - responsive margin-left to match sidebar */}
-      <main className="flex-1 md:ml-48 lg:ml-64 p-4 md:p-6 pb-32 md:pb-24">
+      <main className="flex-1 md:ml-48 lg:ml-64 p-4 md:p-6 pb-32 md:pb-24 mt-12">
         {/* Top header with search and controls */}
         <header className="content-header mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -75,8 +78,44 @@ export default function Layout({ children }) {
         {children}
       </main>
 
-      {/* Now Playing Bar - fixed at bottom */}
-      <NowPlayingBar isMobile={isMobile} />
+      {/* On mobile: Now Playing Bar above bottom nav. On desktop: fixed at bottom. */}
+      {isMobile ? (
+        <>
+          <NowPlayingBar isMobile={isMobile} />
+          <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-overlay flex justify-around items-center h-16 shadow-lg">
+            <Link href="/" className="flex flex-col items-center text-muted hover:text-mauve text-xs">
+              <i className="fas fa-home text-lg"></i>
+              <span>Home</span>
+            </Link>
+            <Link href="/library" className="flex flex-col items-center text-muted hover:text-mauve text-xs">
+              <i className="fas fa-book text-lg"></i>
+              <span>Library</span>
+            </Link>
+            <Link href="/playlists" className="flex flex-col items-center text-muted hover:text-mauve text-xs">
+              <i className="fas fa-list text-lg"></i>
+              <span>Top 100</span>
+            </Link>
+            <Link href="/about" className="flex flex-col items-center text-muted hover:text-mauve text-xs">
+              <i className="fas fa-info-circle text-lg"></i>
+              <span>About</span>
+            </Link>
+            {role === 'admin' && (
+              <>
+                <Link href="/dashboard" className="flex flex-col items-center text-muted hover:text-mauve text-xs">
+                  <i className="fas fa-tachometer-alt text-lg"></i>
+                  <span>Dashboard</span>
+                </Link>
+                <Link href="/user-management" className="flex flex-col items-center text-muted hover:text-mauve text-xs">
+                  <i className="fas fa-users-cog text-lg"></i>
+                  <span>Users</span>
+                </Link>
+              </>
+            )}
+          </nav>
+        </>
+      ) : (
+        <NowPlayingBar isMobile={isMobile} />
+      )}
     </div>
   );
 }

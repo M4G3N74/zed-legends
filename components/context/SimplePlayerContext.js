@@ -12,7 +12,7 @@ export function PlayerProvider({ children }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(1);
   const [repeat, setRepeat] = useState('none'); // 'none', 'one', 'all'
-  const [shuffle, setShuffle] = useState(false);
+  const [shuffle, setShuffle] = useState(true);
   const [smartShuffleEnabled, setSmartShuffleEnabled] = useState(true);
   const [bassBoost, setBassBoost] = useState(false);
   const [megaBoost, setMegaBoost] = useState(false);
@@ -478,13 +478,13 @@ export function PlayerProvider({ children }) {
       />
       {playbackPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-surface p-8 rounded-lg shadow-lg flex flex-col items-center">
-            <p className="text-lg font-semibold mb-4">My site uses background audio to play music. Please tap to start playback.</p>
+          <div className="bg-surface p-8 rounded-lg flex flex-col items-center">
+            <p className="text-lg font-semibold mb-4">you have to allow background play</p>
             <button
               onClick={handleUserPlaybackUnlock}
               className="px-6 py-2 bg-mauve text-background rounded-lg text-lg font-bold hover:bg-mauve/90"
             >
-              Tap to Play
+              Allow
             </button>
           </div>
         </div>
