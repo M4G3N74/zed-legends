@@ -2,9 +2,13 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const NodeID3 = require('node-id3');
+const { createClient } = require('@supabase/supabase-js');
 
 const PORT = process.env.PORT || 3000;
 const MUSIC_DIR = process.env.MUSIC_DIR || '/home/purple/Music';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Cache for songs to avoid repeated file system scans
 let songsCache = null;
@@ -137,12 +141,19 @@ const server = http.createServer(async (req, res) => {
     
     // API Routes
     if (url.pathname === '/api/songs') {
+      // Fetch the total count from Supabase
+      const { count, error } = await supabase
+        .from('songs')
+        .select('*', { count: 'exact', head: true });
+      if (error) {
+        console.error('Error fetching song count from Supabase:', error);
+      }
+      // Keep the rest of the endpoint as is, but replace totalSongs with the Supabase count
       const songs = await scanMusicFiles();
       const page = parseInt(url.searchParams.get('page')) || 1;
       const limit = Math.min(parseInt(url.searchParams.get('limit')) || 50, 100); // Max 100 per page
       const search = url.searchParams.get('search') || '';
       const sortBy = url.searchParams.get('sortBy') || 'artist';
-      
       let filteredSongs = songs;
       if (search) {
         const searchLower = search.toLowerCase();
@@ -152,23 +163,19 @@ const server = http.createServer(async (req, res) => {
           song.album.toLowerCase().includes(searchLower)
         );
       }
-      
-      // Sort songs
       filteredSongs.sort((a, b) => {
         const aVal = a[sortBy] || '';
         const bVal = b[sortBy] || '';
         return aVal.localeCompare(bVal);
       });
-      
       const startIndex = (page - 1) * limit;
       const paginatedSongs = filteredSongs.slice(startIndex, startIndex + limit);
-      
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         songs: paginatedSongs,
-        totalSongs: filteredSongs.length,
+        totalSongs: count,
         currentPage: page,
-        totalPages: Math.ceil(filteredSongs.length / limit)
+        totalPages: Math.ceil((count || 0) / limit)
       }));
       return;
     }
