@@ -23,15 +23,17 @@ export default async function handler(req, res) {
 
   try {
     // Pagination params
-    const page = parseInt(req.query.page, 10) || 1;
-    const pageSize = Math.min(parseInt(req.query.pageSize, 10) || 50, 100); // Max 100 per page
+    const page = parseInt(req.query.page, 100) || 1;
+    const pageSize = Math.min(parseInt(req.query.pageSize, 100) || 50, 100); // Max 100 per page
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    // Fetch paginated songs
+    // Fetch paginated songs, filtering out 'mixdown' in title or artist at the DB level
     const { data: songs, error, count } = await supabase
       .from('songs')
       .select('*', { count: 'exact' })
+      .not('title', 'ilike', '%mixdown%')
+      .not('artist', 'ilike', '%mixdown%')
       .order('title', { ascending: true })
       .range(from, to);
 

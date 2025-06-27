@@ -13,6 +13,7 @@ const initialState = {
   error: null,
   searchQuery: '',
   sortBy: 'artist',
+  paginationMode: 'standard',
 };
 
 function libraryReducer(state, action) {
@@ -22,10 +23,14 @@ function libraryReducer(state, action) {
     case 'SET_SONGS':
       return {
         ...state,
-        songs: action.payload.songs,
+        songs: action.payload.songs.filter(
+          song =>
+            !song.title?.toLowerCase().includes('mixdown') &&
+            !song.artist?.toLowerCase().includes('mixdown')
+        ),
         totalSongs: action.payload.totalSongs,
         currentPage: action.payload.currentPage,
-        totalPages: action.payload.totalPages,
+        totalPages: Math.ceil(action.payload.totalSongs / state.songsPerPage),
         isLoading: false,
         error: null,
       };
@@ -37,6 +42,8 @@ function libraryReducer(state, action) {
       return { ...state, sortBy: action.payload };
     case 'SET_PAGE':
       return { ...state, currentPage: action.payload };
+    case 'SET_SONGS_PER_PAGE':
+      return { ...state, songsPerPage: action.payload, currentPage: 1 };
     default:
       return state;
   }
@@ -46,12 +53,13 @@ export const LibraryProvider = ({ children }) => {
   const [state, dispatch] = useReducer(libraryReducer, initialState);
   const hasFetchedOnce = useRef(false);
 
-  const fetchSongs = useCallback(async (page = 1, search = '', sortBy = 'artist') => {
+  const fetchSongs = useCallback(async (page = 1, search = '', sortBy = 'artist', songsPerPageOverride) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
+      const limit = songsPerPageOverride || state.songsPerPage;
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: state.songsPerPage.toString(),
+        limit: limit.toString(),
         search,
         sortBy,
       });
@@ -86,6 +94,11 @@ export const LibraryProvider = ({ children }) => {
     fetchSongs(page, state.searchQuery, state.sortBy);
   };
 
+  const setSongsPerPage = (newSongsPerPage) => {
+    dispatch({ type: 'SET_SONGS_PER_PAGE', payload: newSongsPerPage });
+    fetchSongs(1, state.searchQuery, state.sortBy, newSongsPerPage);
+  };
+
   const refreshLibrary = () => {
     fetchSongs(state.currentPage, state.searchQuery, state.sortBy);
   };
@@ -113,6 +126,8 @@ export const LibraryProvider = ({ children }) => {
     changePage,
     refreshLibrary,
     updateSongMetadata,
+    paginationMode: 'standard',
+    setSongsPerPage,
   };
 
   return (

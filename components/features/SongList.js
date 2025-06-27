@@ -8,7 +8,6 @@ export default function SongList() {
   const {
     songs,
     pagination,
-    paginationMode,
     fetchSongs,
     isLoading,
     error
@@ -17,40 +16,6 @@ export default function SongList() {
   const { currentSong } = usePlayer();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef(null);
-  const observerRef = useRef(null);
-
-  // Set up infinite scroll using Intersection Observer
-  useEffect(() => {
-    if (paginationMode !== 'infinite') return;
-
-    // Create an observer for the load more trigger
-    observerRef.current = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        // If the load more trigger is visible and we have more songs to load
-        if (entry.isIntersecting && pagination?.hasMore && !isLoading) {
-          // Load the next page
-          const nextPage = pagination.currentPage + 1;
-          fetchSongs(false, nextPage, true);
-        }
-      });
-    }, {
-      root: containerRef.current,
-      rootMargin: '100px',
-      threshold: 0.1
-    });
-
-    // Observe the load more trigger
-    const loadMoreTrigger = document.getElementById('load-more-trigger');
-    if (loadMoreTrigger) {
-      observerRef.current.observe(loadMoreTrigger);
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [paginationMode, pagination?.hasMore, pagination?.currentPage, isLoading, fetchSongs]);
 
   // Handle scroll to show/hide scroll to top button
   useEffect(() => {
@@ -120,28 +85,11 @@ export default function SongList() {
               isActive={currentSong?.id === song.id}
             />
           ))}
-
-          {/* Load more trigger for infinite scroll */}
-          {paginationMode === 'infinite' && pagination?.hasMore && (
-            <li id="load-more-trigger" className="py-4 text-center">
-              <div className="load-more-text text-muted">
-                {isLoading ? (
-                  <div className="flex justify-center items-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-mauve"></div>
-                  </div>
-                ) : (
-                  'Loading more songs...'
-                )}
-              </div>
-            </li>
-          )}
         </ul>
       </div>
 
       {/* Pagination controls */}
-      {paginationMode === 'standard' && (
-        <Pagination />
-      )}
+      <Pagination />
 
       {/* Scroll to top button */}
       {showScrollTop && (
