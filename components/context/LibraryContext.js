@@ -29,7 +29,7 @@ function libraryReducer(state, action) {
             !song.artist?.toLowerCase().includes('mixdown')
         ),
         totalSongs: action.payload.totalSongs,
-        currentPage: action.payload.currentPage,
+        currentPage: action.payload.page,
         totalPages: Math.ceil(action.payload.totalSongs / state.songsPerPage),
         isLoading: false,
         error: null,
