@@ -29,25 +29,32 @@ export default async function handler(req, res) {
     const to = from + pageSize - 1;
 
     // Fetch paginated songs, filtering out 'mixdown' in title or artist at the DB level
-    const { data: songs, error, count } = await supabase
+    const { data: songs, error } = await supabase
       .from('songs')
-      .select('*', { count: 'exact' })
+      .select('*')
       .not('title', 'ilike', '%mixdown%')
       .not('artist', 'ilike', '%mixdown%')
       .order('title', { ascending: true })
       .range(from, to);
 
-    if (error) {
-      console.error('Error fetching songs from Supabase:', error);
-      throw error;
+    // Get the total count of filtered songs for pagination
+    const { count: filteredCount, error: countError } = await supabase
+      .from('songs')
+      .select('*', { count: 'exact', head: true })
+      .not('title', 'ilike', '%mixdown%')
+      .not('artist', 'ilike', '%mixdown%');
+
+    if (error || countError) {
+      console.error('Error fetching songs from Supabase:', error || countError);
+      throw error || countError;
     }
 
     res.status(200).json({
       songs,
-      total: count,
+      total: filteredCount,
       page,
       pageSize,
-      hasMore: to + 1 < count
+      hasMore: to + 1 < filteredCount
     });
 
   } catch (error) {
