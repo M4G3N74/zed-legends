@@ -1,7 +1,31 @@
 import Layout from '../components/layout/Layout';
 import Head from 'next/head';
+import { useState } from 'react';
 
 export default function RequestPage() {
+  const [request, setRequest] = useState('');
+  const [status, setStatus] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request }),
+      });
+      if (res.ok) {
+        setStatus('success');
+        setRequest('');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  };
+
   return (
     <Layout>
       <Head>
@@ -13,22 +37,25 @@ export default function RequestPage() {
           <p className="text-muted mb-6">
             Have an idea for a new feature or want a song added/removed? Let us know below!
           </p>
-          <form className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <textarea
               className="bg-background/70 border border-overlay rounded-md p-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-mauve"
               rows={4}
               placeholder="Describe your request..."
               required
+              value={request}
+              onChange={e => setRequest(e.target.value)}
             />
             <button
               type="submit"
               className="bg-mauve text-background font-semibold py-2 rounded-lg hover:bg-mauve/90 transition-colors shadow-md"
-              disabled
-              title="Feature coming soon! For now, use the contact info in the banner."
+              disabled={status === 'loading' || !request.trim()}
             >
-              Submit Request
+              {status === 'loading' ? 'Sending...' : 'Submit Request'}
             </button>
           </form>
+          {status === 'success' && <p className="text-green-600 mt-2">Request sent! Thank you.</p>}
+          {status === 'error' && <p className="text-red-600 mt-2">Something went wrong. Please try again.</p>}
           <p className="text-xs text-muted mt-4">
             For urgent requests, use the contact info in the banner above.
           </p>
