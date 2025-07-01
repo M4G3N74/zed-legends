@@ -6,8 +6,9 @@ export default function Pagination() {
     totalPages = 7,
     songsPerPage = 50,
     totalSongs = 0,
-    fetchSongs,
-    setSongsPerPage
+    changePage,
+    setSongsPerPage,
+    paginationMode
   } = useLibrary();
 
   // Calculate start and end item numbers
@@ -19,7 +20,7 @@ export default function Pagination() {
     if (page < 1 || page > totalPages || page === currentPage) {
       return;
     }
-    fetchSongs(page);
+    changePage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -49,6 +50,11 @@ export default function Pagination() {
     }
     return pageNumbers;
   };
+
+  // Don't render pagination controls in infinite mode
+  if (paginationMode === 'infinite') {
+    return null;
+  }
 
   return (
     <div className="pagination-controls mt-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-t border-overlay pt-6">

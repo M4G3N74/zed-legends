@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useLibrary } from '../context/LibraryContext';
 import { usePlayer } from '../context/SimplePlayerContext';
 import SongItem from './SongItem';
@@ -10,27 +10,39 @@ export default function SongList() {
     pagination,
     fetchSongs,
     isLoading,
-    error
+    error,
+    hasMore,
+    loadMoreSongs,
+    paginationMode,
+    setPaginationMode
   } = useLibrary();
 
   const { currentSong } = usePlayer();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef(null);
 
-  // Handle scroll to show/hide scroll to top button
-  useEffect(() => {
-    const handleScroll = () => {
-      if (containerRef.current) {
-        setShowScrollTop(containerRef.current.scrollTop > 300);
+  // Handle scroll for both scroll-to-top button and infinite scroll
+  const handleScroll = useCallback(() => {
+    if (containerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      setShowScrollTop(scrollTop > 300);
+      
+      // Infinite scroll: load more when near bottom
+      if (paginationMode === 'infinite' && hasMore && !isLoading) {
+        if (scrollTop + clientHeight >= scrollHeight - 100) {
+          loadMoreSongs();
+        }
       }
-    };
+    }
+  }, [paginationMode, hasMore, isLoading, loadMoreSongs]);
 
+  useEffect(() => {
     const container = containerRef.current;
     if (container) {
       container.addEventListener('scroll', handleScroll);
       return () => container.removeEventListener('scroll', handleScroll);
     }
-  }, []);
+  }, [handleScroll]);
 
   // Scroll to top function
   const scrollToTop = () => {
@@ -72,6 +84,33 @@ export default function SongList() {
 
   return (
     <div className="relative">
+      {/* Pagination Mode Toggle */}
+      <div className="flex justify-end mb-4">
+        <div className="flex items-center gap-2 bg-surface rounded-lg p-1 border border-overlay">
+          <button
+            onClick={() => setPaginationMode('standard')}
+            className={`px-3 py-1 rounded text-sm transition-colors ${
+              paginationMode === 'standard'
+                ? 'bg-mauve text-background'
+                : 'text-muted hover:text-text'
+            }`}
+          >
+            <i className="fas fa-list mr-1"></i>
+            Pages
+          </button>
+          <button
+            onClick={() => setPaginationMode('infinite')}
+            className={`px-3 py-1 rounded text-sm transition-colors ${
+              paginationMode === 'infinite'
+                ? 'bg-mauve text-background'
+                : 'text-muted hover:text-text'
+            }`}
+          >
+            <i className="fas fa-infinity mr-1"></i>
+            Infinite
+          </button>
+        </div>
+      </div>
       {/* Playlist container - grid on md+, list on mobile */}
       <div
         ref={containerRef}
@@ -90,6 +129,21 @@ export default function SongList() {
 
       {/* Pagination controls */}
       <Pagination />
+      
+      {/* Infinite scroll loading indicator */}
+      {paginationMode === 'infinite' && isLoading && (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-mauve"></div>
+        </div>
+      )}
+      
+      {/* End of results indicator */}
+      {paginationMode === 'infinite' && !hasMore && songs.length > 0 && (
+        <div className="text-center py-8 text-muted">
+          <i className="fas fa-check-circle mb-2"></i>
+          <p>You've reached the end of your music library</p>
+        </div>
+      )}
 
       {/* Scroll to top button */}
       {showScrollTop && (

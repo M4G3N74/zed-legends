@@ -13,7 +13,8 @@ const initialState = {
   error: null,
   searchQuery: '',
   sortBy: 'artist',
-  paginationMode: 'standard',
+  paginationMode: 'infinite',
+  hasMore: true,
 };
 
 function libraryReducer(state, action) {
@@ -31,6 +32,20 @@ function libraryReducer(state, action) {
         totalSongs: action.payload.totalSongs,
         currentPage: action.payload.page,
         totalPages: Math.ceil(action.payload.totalSongs / state.songsPerPage),
+        hasMore: action.payload.hasMore,
+        isLoading: false,
+        error: null,
+      };
+    case 'APPEND_SONGS':
+      return {
+        ...state,
+        songs: [...state.songs, ...action.payload.songs.filter(
+          song =>
+            !song.title?.toLowerCase().includes('mixdown') &&
+            !song.artist?.toLowerCase().includes('mixdown')
+        )],
+        currentPage: action.payload.page,
+        hasMore: action.payload.hasMore,
         isLoading: false,
         error: null,
       };
@@ -44,6 +59,8 @@ function libraryReducer(state, action) {
       return { ...state, currentPage: action.payload };
     case 'SET_SONGS_PER_PAGE':
       return { ...state, songsPerPage: action.payload, currentPage: 1 };
+    case 'SET_PAGINATION_MODE':
+      return { ...state, paginationMode: action.payload, currentPage: 1, songs: [] };
     default:
       return state;
   }
@@ -53,7 +70,7 @@ export const LibraryProvider = ({ children }) => {
   const [state, dispatch] = useReducer(libraryReducer, initialState);
   const hasFetchedOnce = useRef(false);
 
-  const fetchSongs = useCallback(async (page = 1, search = '', sortBy = 'artist', songsPerPageOverride) => {
+  const fetchSongs = useCallback(async (page = 1, search = '', sortBy = 'artist', songsPerPageOverride, append = false) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const limit = songsPerPageOverride || state.songsPerPage;
@@ -64,7 +81,7 @@ export const LibraryProvider = ({ children }) => {
         sortBy,
       });
       const data = await fetchFromAPI(`${apiEndpoints.songs}?${params}`);
-      dispatch({ type: 'SET_SONGS', payload: data });
+      dispatch({ type: append ? 'APPEND_SONGS' : 'SET_SONGS', payload: data });
     } catch (error) {
       console.error('Error fetching songs:', error);
       dispatch({ type: 'SET_ERROR', payload: 'Failed to fetch songs' });
@@ -118,6 +135,18 @@ export const LibraryProvider = ({ children }) => {
     }
   }, []);
 
+  const loadMoreSongs = useCallback(() => {
+    if (state.hasMore && !state.isLoading) {
+      fetchSongs(state.currentPage + 1, state.searchQuery, state.sortBy, state.songsPerPage, true);
+    }
+  }, [state.hasMore, state.isLoading, state.currentPage, state.searchQuery, state.sortBy, state.songsPerPage, fetchSongs]);
+
+  const setPaginationMode = (mode) => {
+    dispatch({ type: 'SET_PAGINATION_MODE', payload: mode });
+    // Refetch songs when switching modes
+    fetchSongs(1, state.searchQuery, state.sortBy);
+  };
+
   const value = {
     ...state,
     fetchSongs,
@@ -126,8 +155,9 @@ export const LibraryProvider = ({ children }) => {
     changePage,
     refreshLibrary,
     updateSongMetadata,
-    paginationMode: 'standard',
+    loadMoreSongs,
     setSongsPerPage,
+    setPaginationMode,
   };
 
   return (

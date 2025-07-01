@@ -23,8 +23,9 @@ export default async function handler(req, res) {
 
   try {
     // Pagination params
-    const page = parseInt(req.query.page, 100) || 1;
-    const pageSize = Math.min(parseInt(req.query.pageSize, 100) || 50, 100); // Max 100 per page
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const pageSize = Math.min(limit, 100); // Max 100 per page
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({
       songs,
-      total: filteredCount,
+      totalSongs: filteredCount,
       page,
       pageSize,
       hasMore: to + 1 < filteredCount
