@@ -60,7 +60,7 @@ function libraryReducer(state, action) {
     case 'SET_SONGS_PER_PAGE':
       return { ...state, songsPerPage: action.payload, currentPage: 1 };
     case 'SET_PAGINATION_MODE':
-      return { ...state, paginationMode: action.payload, currentPage: 1, songs: [] };
+      return { ...state, paginationMode: action.payload };
     default:
       return state;
   }
@@ -137,14 +137,14 @@ export const LibraryProvider = ({ children }) => {
 
   const loadMoreSongs = useCallback(() => {
     if (state.hasMore && !state.isLoading) {
-      fetchSongs(state.currentPage + 1, state.searchQuery, state.sortBy, state.songsPerPage, true);
+      const nextPage = state.currentPage + 1;
+      fetchSongs(nextPage, state.searchQuery, state.sortBy, state.songsPerPage, true);
     }
   }, [state.hasMore, state.isLoading, state.currentPage, state.searchQuery, state.sortBy, state.songsPerPage, fetchSongs]);
 
   const setPaginationMode = (mode) => {
     dispatch({ type: 'SET_PAGINATION_MODE', payload: mode });
-    // Refetch songs when switching modes
-    fetchSongs(1, state.searchQuery, state.sortBy);
+    // Don't refetch - just change the mode
   };
 
   const value = {

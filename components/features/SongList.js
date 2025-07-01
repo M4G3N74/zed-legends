@@ -20,29 +20,49 @@ export default function SongList() {
   const { currentSong } = usePlayer();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef(null);
+  const loadingRef = useRef(false);
+  const throttleRef = useRef(null);
 
-  // Handle scroll for both scroll-to-top button and infinite scroll
+  // Throttled scroll handler
   const handleScroll = useCallback(() => {
-    if (containerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      setShowScrollTop(scrollTop > 300);
-      
-      // Infinite scroll: load more when near bottom
-      if (paginationMode === 'infinite' && hasMore && !isLoading) {
-        if (scrollTop + clientHeight >= scrollHeight - 100) {
-          loadMoreSongs();
+    if (throttleRef.current) return;
+    
+    throttleRef.current = setTimeout(() => {
+      if (containerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+        setShowScrollTop(scrollTop > 300);
+        
+        // Infinite scroll: load more when near bottom
+        if (paginationMode === 'infinite' && hasMore && !isLoading && !loadingRef.current) {
+          if (scrollTop + clientHeight >= scrollHeight - 200) {
+            loadingRef.current = true;
+            loadMoreSongs();
+          }
         }
       }
-    }
+      throttleRef.current = null;
+    }, 100);
   }, [paginationMode, hasMore, isLoading, loadMoreSongs]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+        if (throttleRef.current) {
+          clearTimeout(throttleRef.current);
+        }
+      };
     }
   }, [handleScroll]);
+
+  // Reset loading ref when loading completes
+  useEffect(() => {
+    if (!isLoading) {
+      loadingRef.current = false;
+    }
+  }, [isLoading]);
 
   // Scroll to top function
   const scrollToTop = () => {
@@ -131,9 +151,12 @@ export default function SongList() {
       <Pagination />
       
       {/* Infinite scroll loading indicator */}
-      {paginationMode === 'infinite' && isLoading && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-mauve"></div>
+      {paginationMode === 'infinite' && isLoading && songs.length > 0 && (
+        <div className="flex justify-center items-center py-4">
+          <div className="flex items-center gap-2 text-mauve">
+            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-mauve"></div>
+            <span className="text-sm">Loading more songs...</span>
+          </div>
         </div>
       )}
       
