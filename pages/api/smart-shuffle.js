@@ -2,78 +2,120 @@
 // This endpoint receives user listening data and returns personalized song recommendations
 
 export default async function handler(req, res) {
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { currentSongId, playHistory, skipHistory, userId } = req.body;
+    const { 
+      userId, 
+      currentSongId, 
+      skipHistory = [], 
+      playHistory = [],
+      userProfile = {},
+      timeOfDay,
+      mood = 'neutral'
+    } = req.body;
 
-    // Validate required fields
-    if (!currentSongId || !userId) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Get all songs from database
+    const response = await fetch(`${req.headers.origin || 'http://localhost:3000'}/api/songs`);
+    const { songs } = await response.json();
+    
+    if (!songs || songs.length === 0) {
+      return res.status(404).json({ error: 'No songs available' });
     }
 
-    // In a real implementation, this would call your backend service
-    // that implements the smart shuffle algorithm
+    // DJ Purple advanced intelligence
+    const currentHour = new Date().getHours();
+    const recentSkips = skipHistory.slice(-15);
+    const recentPlays = playHistory.slice(-10);
     
-    // For now, we'll simulate a response with a simple algorithm
-    // that prioritizes songs that:
-    // 1. Haven't been played recently
-    // 2. Haven't been skipped
-    // 3. Are similar to the current song (genre, artist, etc.)
-    
-    // Get all songs from your database or library
-    // This is a placeholder - in a real implementation, you would fetch from your database
-    const allSongs = await getMockSongLibrary();
-    
-    // Filter out the current song
-    const availableSongs = allSongs.filter(song => song.id !== currentSongId);
-    
-    // Calculate a score for each song
-    const scoredSongs = availableSongs.map(song => {
-      let score = 1.0; // Base score
+    const scoredSongs = songs.map(song => {
+      let score = Math.random() * 0.2;
       
-      // Reduce score if the song was recently played
-      if (playHistory && playHistory.includes(song.id)) {
-        const recencyIndex = playHistory.lastIndexOf(song.id);
-        const recencyPenalty = 0.9 ** (playHistory.length - recencyIndex);
-        score *= recencyPenalty;
+      if (song.id === currentSongId || recentSkips.includes(song.id)) {
+        return { song, score: 0 };
       }
       
-      // Heavily reduce score if the song was recently skipped
-      if (skipHistory && skipHistory.includes(song.id)) {
-        const skipIndex = skipHistory.lastIndexOf(song.id);
-        const skipPenalty = 0.5 ** (skipHistory.length - skipIndex);
-        score *= skipPenalty;
+      // Favorite artists boost
+      if (userProfile.favoriteArtists?.includes(song.artist)) {
+        score += 0.4;
       }
       
-      // Boost score for songs with the same artist
-      const currentSong = allSongs.find(s => s.id === currentSongId);
-      if (currentSong && song.artist === currentSong.artist) {
-        score *= 1.2;
+      // Time-based preferences
+      if (userProfile.listeningTimes?.[currentHour]) {
+        const timePrefs = userProfile.listeningTimes[currentHour];
+        if (timePrefs.artists?.includes(song.artist)) {
+          score += 0.3;
+        }
       }
       
-      // Boost score for songs with the same genre
-      if (currentSong && song.genre === currentSong.genre) {
-        score *= 1.3;
+      // Play history boost
+      const timesPlayed = playHistory.filter(id => id === song.id).length;
+      if (timesPlayed > 0 && !recentPlays.includes(song.id)) {
+        score += Math.min(timesPlayed * 0.15, 0.3);
       }
       
-      return { id: song.id, score };
+      // Diversity bonus
+      if (recentPlays.length > 0) {
+        const recentArtists = recentPlays.map(id => 
+          songs.find(s => s.id === id)?.artist
+        ).filter(Boolean);
+        
+        if (!recentArtists.slice(-3).includes(song.artist)) {
+          score += 0.1;
+        }
+      }
+      
+      return { song, score };
     });
+
+    const validSongs = scoredSongs.filter(item => item.score > 0);
     
-    // Sort by score (highest first)
-    scoredSongs.sort((a, b) => b.score - a.score);
+    if (validSongs.length === 0) {
+      const randomSong = songs[Math.floor(Math.random() * songs.length)];
+      return res.status(200).json({ 
+        recommendedSong: randomSong,
+        reason: 'Random fallback',
+        confidence: 0.1
+      });
+    }
     
-    // Return the top recommendations
-    const recommendations = scoredSongs.slice(0, 10).map(song => song.id);
+    validSongs.sort((a, b) => b.score - a.score);
     
-    // Return the recommendations
-    return res.status(200).json({ recommendations });
+    const topCandidates = validSongs.slice(0, Math.min(8, validSongs.length));
+    const totalWeight = topCandidates.reduce((sum, item) => sum + item.score, 0);
+    
+    let random = Math.random() * totalWeight;
+    let selectedSong = topCandidates[0];
+    
+    for (const candidate of topCandidates) {
+      random -= candidate.score;
+      if (random <= 0) {
+        selectedSong = candidate;
+        break;
+      }
+    }
+
+    let reason = 'DJ Purple\'s smart pick';
+    if (selectedSong.score > 0.6) {
+      reason = 'Perfect match for your taste! 🎯';
+    } else if (userProfile.favoriteArtists?.includes(selectedSong.song.artist)) {
+      reason = `You love ${selectedSong.song.artist}! 💜`;
+    } else if (selectedSong.score > 0.4) {
+      reason = 'Great choice based on your history 🎵';
+    }
+
+    res.status(200).json({
+      recommendedSong: selectedSong.song,
+      reason,
+      confidence: Math.min(selectedSong.score, 1.0),
+      djMode: true
+    });
+
   } catch (error) {
-    console.error('Smart shuffle error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('DJ Purple error:', error);
+    res.status(500).json({ error: 'DJ Purple is taking a break' });
   }
 }
 

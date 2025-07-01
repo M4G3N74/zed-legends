@@ -36,6 +36,7 @@ export function PlayerProvider({ children }) {
           if (preferences.volume !== undefined) setVolume(preferences.volume);
           if (preferences.shuffle !== undefined) setShuffle(preferences.shuffle);
           if (preferences.smartShuffleEnabled !== undefined) setSmartShuffleEnabled(preferences.smartShuffleEnabled);
+          else setSmartShuffleEnabled(true); // Default to enabled
           if (preferences.repeat !== undefined) setRepeat(preferences.repeat);
           if (preferences.autoplay !== undefined) setAutoplay(preferences.autoplay);
           if (preferences.bassBoost !== undefined) setBassBoost(preferences.bassBoost);
@@ -235,6 +236,15 @@ export function PlayerProvider({ children }) {
     if (!currentSong || !songs || songs.length === 0) return;
 
     console.log('Playing next song');
+
+    // Check if DJ Purple is active and has a recommendation
+    if (window.djGetNextSong) {
+      const djRecommendation = window.djGetNextSong();
+      if (djRecommendation && autoplay) {
+        playSong(djRecommendation);
+        return;
+      }
+    }
 
     let nextSongIndex = -1;
     const playNext = autoplay;
@@ -462,7 +472,6 @@ export function PlayerProvider({ children }) {
         ref={audioRef}
         preload="auto"
         playsInline
-        crossOrigin="anonymous"
         loop={repeat === 'one'}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onDurationChange={() => setDuration(audioRef.current?.duration || 0)}
