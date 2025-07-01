@@ -462,6 +462,7 @@ export function PlayerProvider({ children }) {
         ref={audioRef}
         preload="auto"
         playsInline
+        crossOrigin="anonymous"
         loop={repeat === 'one'}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onDurationChange={() => setDuration(audioRef.current?.duration || 0)}

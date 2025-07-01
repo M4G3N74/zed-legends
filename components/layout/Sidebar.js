@@ -5,6 +5,7 @@ import { useLibrary } from '../context/LibraryContext';
 import { useUser } from '../context/UserContext';
 import { supabase } from '../../lib/supabase';
 import { useState } from 'react';
+import { InstantLink } from '../navigation/InstantRouter';
 
 function LogoutToast({ show }) {
   if (!show) return null;
@@ -47,47 +48,47 @@ export default function Sidebar({ isMobile }) {
       <ul className={`nav-menu ${isMobile ? 'flex items-center justify-around w-full' : 'p-4 md:p-3 space-y-2'} 
         ${!isMobile ? 'mt-4' : ''}`}>
         <li className={`nav-item ${router.pathname === '/' ? 'text-mauve' : 'text-text'}`}>
-          <Link href="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
+          <InstantLink href="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
             <i className="fas fa-home"></i>
             <span>Home</span>
-          </Link>
+          </InstantLink>
         </li>
         <li className={`nav-item ${router.pathname === '/library' ? 'text-mauve' : 'text-text'}`}>
-          <Link href="/library" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
+          <InstantLink href="/library" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
             <i className="fas fa-book"></i>
             <span>Library</span>
-          </Link>
+          </InstantLink>
         </li>
         <li className={`nav-item ${router.pathname === '/playlists' ? 'text-mauve' : 'text-text'}`}>
-          <Link href="/playlists" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
+          <InstantLink href="/playlists" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
             <i className="fas fa-list"></i>
             <span>Top 100</span>
-          </Link>
+          </InstantLink>
         </li>
         <li className={`nav-item ${router.pathname === '/request' ? 'text-mauve' : 'text-text'}`}>
-          <Link href="/request" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
+          <InstantLink href="/request" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
             <i className="fas fa-lightbulb"></i>
             <span>Request</span>
-          </Link>
+          </InstantLink>
         </li>
         <li className={`nav-item ${router.pathname === '/support' ? 'text-mauve' : 'text-text'}`}>
-          <Link href="/support" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
+          <InstantLink href="/support" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
             <i className="fas fa-headset"></i>
             <span>Support</span>
-          </Link>
+          </InstantLink>
         </li>
         <li className={`nav-item ${router.pathname === '/dashboard' ? 'text-mauve' : 'text-text'}`}>
-          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
+          <InstantLink href="/dashboard" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
             <i className="fas fa-tachometer-alt"></i>
             <span>Dashboard</span>
-          </Link>
+          </InstantLink>
         </li>
         {role === 'admin' && (
           <li className={`nav-item ${router.pathname === '/user-management' ? 'text-mauve' : 'text-text'}`}>
-            <Link href="/user-management" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
+            <InstantLink href="/user-management" className="flex items-center gap-3 p-3 rounded-xl hover:bg-overlay/40 hover:backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:scale-105 border border-transparent hover:border-mauve/20">
               <i className="fas fa-users-cog"></i>
               <span>User Management</span>
-            </Link>
+            </InstantLink>
           </li>
         )}
       </ul>

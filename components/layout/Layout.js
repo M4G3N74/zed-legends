@@ -6,12 +6,14 @@ import BetaBanner from '../ui/BetaBanner';
 import { useLibrary } from '../context/LibraryContext';
 import { useUser } from '../context/UserContext';
 import Link from 'next/link';
+import { InstantLink, useInstantNavigation } from '../navigation/InstantRouter';
 
 export default function Layout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { pagination } = useLibrary();
   const { role } = useUser();
+  const { prefetchPage } = useInstantNavigation();
 
   // Check if we're on mobile
   useEffect(() => {
@@ -22,6 +24,15 @@ export default function Layout({ children }) {
     window.addEventListener('resize', checkIfMobile);
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
+
+  // Prefetch all pages on mount for instant navigation
+  useEffect(() => {
+    const pages = ['/', '/library', '/playlists', '/request', '/support', '/about'];
+    if (role === 'admin') {
+      pages.push('/dashboard', '/user-management');
+    }
+    pages.forEach(page => prefetchPage(page));
+  }, [role, prefetchPage]);
 
   // Height of the fixed header and banner (adjust if you change header/banner height)
   const HEADER_HEIGHT = 80;
@@ -94,40 +105,40 @@ export default function Layout({ children }) {
         <>
           <NowPlayingBar isMobile={isMobile} />
           <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-overlay flex justify-around items-center h-16 shadow-lg gap-1 px-1">
-            <Link href="/" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+            <InstantLink href="/" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
               <i className="fas fa-home text-lg"></i>
               <span>Home</span>
-            </Link>
-            <Link href="/library" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+            </InstantLink>
+            <InstantLink href="/library" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
               <i className="fas fa-book text-lg"></i>
               <span>Library</span>
-            </Link>
-            <Link href="/playlists" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+            </InstantLink>
+            <InstantLink href="/playlists" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
               <i className="fas fa-list text-lg"></i>
               <span>Top 100</span>
-            </Link>
-            <Link href="/request" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+            </InstantLink>
+            <InstantLink href="/request" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
               <i className="fas fa-lightbulb text-lg"></i>
               <span>Request</span>
-            </Link>
-            <Link href="/support" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+            </InstantLink>
+            <InstantLink href="/support" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
               <i className="fas fa-headset text-lg"></i>
               <span>Support</span>
-            </Link>
-            <Link href="/about" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+            </InstantLink>
+            <InstantLink href="/about" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
               <i className="fas fa-info-circle text-lg"></i>
               <span>About</span>
-            </Link>
+            </InstantLink>
             {role === 'admin' && (
               <>
-                <Link href="/dashboard" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+                <InstantLink href="/dashboard" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
                   <i className="fas fa-tachometer-alt text-lg"></i>
                   <span>Dashboard</span>
-                </Link>
-                <Link href="/user-management" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
+                </InstantLink>
+                <InstantLink href="/user-management" className="inline-flex flex-col items-center text-muted hover:text-mauve text-xs mx-1">
                   <i className="fas fa-users-cog text-lg"></i>
                   <span>Users</span>
-                </Link>
+                </InstantLink>
               </>
             )}
           </nav>
