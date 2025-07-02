@@ -2,7 +2,6 @@ import Head from 'next/head';
 import Layout from '../components/layout/Layout';
 import SongList from '../components/features/SongList';
 import Visualizer from '../components/ui/Visualizer';
-import DJPurple from '../components/features/DJPurple';
 import { useLibrary } from '../components/context/LibraryContext';
 import SEO from '../components/ui/SEO';
 import React from 'react';
@@ -93,8 +92,19 @@ export default function Home() {
             </div>
           </div>
 
-          {/* DJ Purple Section */}
-          <DJPurple />
+          {/* Coming Soon: AI DJ */}
+          <div className="bg-gradient-to-br from-mauve/10 to-lavender/10 rounded-2xl border border-overlay/30 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-mauve to-lavender rounded-xl flex items-center justify-center">
+                <i className="fas fa-robot text-background text-xl"></i>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold">DJ Purple - Coming Soon</h2>
+                <p className="text-muted">AI-powered music curation</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted">Our AI DJ feature is currently in development and will be available soon!</p>
+          </div>
           
           {/* Music Library Section */}
           <div className="bg-gradient-to-br from-surface/80 to-surface/40 backdrop-blur-xl rounded-2xl border border-overlay/30 shadow-xl">
