@@ -12,20 +12,36 @@ export default function UserManagementPage() {
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    if (role === 'admin') {
+    if (role === 'admin' && user) {
       setUsersLoading(true);
-      fetch('/api/users')
-        .then(res => res.json())
-        .then(data => {
-          setUsers(data.users || []);
-          setUsersLoading(false);
-        })
-        .catch(err => {
-          setUsersError('Failed to load users');
-          setUsersLoading(false);
+      
+      import('../lib/supabase').then(({ supabase }) => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (!session) {
+            setUsersError('No session found');
+            setUsersLoading(false);
+            return;
+          }
+          
+          fetch('/api/users', {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(res => res.json())
+          .then(data => {
+            setUsers(data.users || []);
+            setUsersLoading(false);
+          })
+          .catch(err => {
+            setUsersError('Failed to load users');
+            setUsersLoading(false);
+          });
         });
+      });
     }
-  }, [role]);
+  }, [role, user]);
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
   if (!user || role !== 'admin') {
@@ -36,9 +52,20 @@ export default function UserManagementPage() {
   const handleRoleChange = async (userId, newRole) => {
     setActionError('');
     try {
+      const { supabase } = await import('../lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setActionError('No session found. Please log in again.');
+        return;
+      }
+      
       const res = await fetch('/api/users', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ id: userId, role: newRole }),
       });
       const data = await res.json();
@@ -53,9 +80,21 @@ export default function UserManagementPage() {
     setActionError('');
     setDeletingId(userId);
     try {
+      const { supabase } = await import('../lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setActionError('No session found. Please log in again.');
+        setDeletingId(null);
+        return;
+      }
+      
       const res = await fetch('/api/users', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ id: userId }),
       });
       const data = await res.json();

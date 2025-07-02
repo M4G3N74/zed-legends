@@ -3,6 +3,7 @@ import '../styles/frosted-glass.css';
 import { PlayerProvider } from '../components/context/SimplePlayerContext';
 import { LibraryProvider } from '../components/context/LibraryContext';
 import { ThemeProvider } from '../components/context/ThemeContext';
+import { DJProvider } from '../components/context/DJContext';
 import Head from 'next/head';
 import React from 'react';
 import { UserProvider } from '../components/context/UserContext';
@@ -50,7 +51,9 @@ function MyApp({ Component, pageProps }) {
           <LibraryProvider>
             <PlayerProvider>
               <UserProvider>
-                <Component {...pageProps} />
+                <DJProvider>
+                  <Component {...pageProps} />
+                </DJProvider>
               </UserProvider>
             </PlayerProvider>
           </LibraryProvider>

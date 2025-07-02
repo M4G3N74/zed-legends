@@ -44,37 +44,44 @@ export default function Layout({ children }) {
       {/* Beta Banner - always at the very top */}
       <BetaBanner />
 
-      {/* Banner/Header - always at the top, full width, highest z-index below banner */}
-      <header className="content-header fixed top-[40px] left-0 right-0 z-[999] bg-surface/90 backdrop-blur-xl border-b border-overlay/30 shadow-lg p-4 md:p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <SearchBar />
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-muted flex items-center gap-1">
-              <span>{pagination?.total ?? 0} songs in library</span>
-              <span className="text-xs text-muted cursor-help" title="If the song count appears incorrect, click the refresh button to rescan your music library">
-                <i className="fas fa-question-circle"></i>
-              </span>
-            </div>
-            <button
-              className={`text-xs ${isRefreshing ? 'text-mauve' : 'text-muted hover:text-mauve'} p-1`}
-              title="Refresh song count"
-              disabled={isRefreshing}
-              onClick={async () => {
-                if (isRefreshing) return;
-                setIsRefreshing(true);
-                try {
-                  const response = await fetch('/api/cache/clear');
-                  if (response.ok) {
-                    window.location.reload();
+      {/* Modern Header */}
+      <header className="content-header fixed top-[40px] left-0 right-0 z-[999] bg-surface/95 backdrop-blur-2xl border-b border-overlay/20 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <SearchBar />
+            <div className="flex items-center gap-4">
+              <div className="bg-background/50 backdrop-blur-sm rounded-xl px-4 py-2 border border-overlay/30">
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-music text-mauve"></i>
+                  <span className="text-sm font-medium">{pagination?.total ?? 0}</span>
+                  <span className="text-xs text-muted">songs</span>
+                </div>
+              </div>
+              <button
+                className={`p-2 rounded-xl transition-all ${
+                  isRefreshing 
+                    ? 'bg-mauve/20 text-mauve' 
+                    : 'bg-surface/50 text-muted hover:text-mauve hover:bg-mauve/10'
+                } backdrop-blur-sm border border-overlay/30`}
+                title="Refresh library"
+                disabled={isRefreshing}
+                onClick={async () => {
+                  if (isRefreshing) return;
+                  setIsRefreshing(true);
+                  try {
+                    const response = await fetch('/api/cache/clear');
+                    if (response.ok) {
+                      window.location.reload();
+                    }
+                  } catch (error) {
+                    console.error('Error clearing cache:', error);
+                    setIsRefreshing(false);
                   }
-                } catch (error) {
-                  console.error('Error clearing cache:', error);
-                  setIsRefreshing(false);
-                }
-              }}
-            >
-              <i className={`fas ${isRefreshing ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`}></i>
-            </button>
+                }}
+              >
+                <i className={`fas ${isRefreshing ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`}></i>
+              </button>
+            </div>
           </div>
         </div>
       </header>

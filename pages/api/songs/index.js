@@ -22,28 +22,45 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Pagination params
+    // Pagination and search params
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 50;
-    const pageSize = Math.min(limit, 100); // Max 100 per page
+    const search = req.query.search || '';
+    const sortBy = req.query.sortBy || 'title';
+    const pageSize = Math.min(limit, 100);
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    // Fetch paginated songs, filtering out 'mixdown' in title or artist at the DB level
-    const { data: songs, error } = await supabase
+    // Build query with search and sort
+    let query = supabase
       .from('songs')
       .select('*')
       .not('title', 'ilike', '%mixdown%')
-      .not('artist', 'ilike', '%mixdown%')
-      .order('title', { ascending: true })
-      .range(from, to);
+      .not('artist', 'ilike', '%mixdown%');
 
-    // Get the total count of filtered songs for pagination
-    const { count: filteredCount, error: countError } = await supabase
+    // Add search filter if provided
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,artist.ilike.%${search}%,album.ilike.%${search}%`);
+    }
+
+    // Add sorting
+    query = query.order(sortBy, { ascending: true });
+
+    // Execute query with pagination
+    const { data: songs, error } = await query.range(from, to);
+
+    // Get total count with same filters
+    let countQuery = supabase
       .from('songs')
       .select('*', { count: 'exact', head: true })
       .not('title', 'ilike', '%mixdown%')
       .not('artist', 'ilike', '%mixdown%');
+
+    if (search) {
+      countQuery = countQuery.or(`title.ilike.%${search}%,artist.ilike.%${search}%,album.ilike.%${search}%`);
+    }
+
+    const { count: filteredCount, error: countError } = await countQuery;
 
     if (error || countError) {
       console.error('Error fetching songs from Supabase:', error || countError);
