@@ -10,7 +10,7 @@ export function PlayerProvider({ children }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(1);
+  const [volume, setVolume] = useState(0.2);
   const [repeat, setRepeat] = useState('none'); // 'none', 'one', 'all'
   const [shuffle, setShuffle] = useState(true);
   const [smartShuffleEnabled, setSmartShuffleEnabled] = useState(true);
@@ -34,6 +34,7 @@ export function PlayerProvider({ children }) {
           const preferences = JSON.parse(savedPreferences);
 
           if (preferences.volume !== undefined) setVolume(preferences.volume);
+          else setVolume(0.2); // Default to 20% volume
           if (preferences.shuffle !== undefined) setShuffle(preferences.shuffle);
           if (preferences.smartShuffleEnabled !== undefined) setSmartShuffleEnabled(preferences.smartShuffleEnabled);
           else setSmartShuffleEnabled(true); // Default to enabled
@@ -176,12 +177,10 @@ export function PlayerProvider({ children }) {
 
   // Play a song (or the current one)
   const playSong = useCallback((song = null) => {
-    if (typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent) && !userHasInteracted) {
-      console.log('Playback blocked: waiting for user gesture on mobile.');
+    if (!userHasInteracted) {
       setPlaybackPrompt(true);
       return;
     }
-    setUserHasInteracted(true);
     setPlaybackPrompt(false);
     console.log('playSong called with:', song);
     const songToPlay = song || currentSong;
@@ -190,8 +189,12 @@ export function PlayerProvider({ children }) {
             console.log('First song in list:', songs[0]);
             loadSong(songs[0]);
             audioRef.current?.play().catch(e => {
-              if (e.name === 'NotAllowedError') setPlaybackPrompt(true);
-              else console.error("Playback error:", e);
+              if (e.name === 'NotAllowedError') {
+                setPlaybackPrompt(true);
+                setUserHasInteracted(false);
+              } else {
+                console.error("Playback error:", e);
+              }
             });
         }
         return;
@@ -200,23 +203,46 @@ export function PlayerProvider({ children }) {
     if (song && song.id !== currentSong?.id) {
         loadSong(song);
         const playWhenReady = () => audioRef.current?.play().catch(e => {
-          if (e.name === 'NotAllowedError') setPlaybackPrompt(true);
-          else console.error("Playback error on load:", e);
+          if (e.name === 'NotAllowedError') {
+            setPlaybackPrompt(true);
+            setUserHasInteracted(false);
+          } else {
+            console.error("Playback error on load:", e);
+          }
         });
         audioRef.current?.addEventListener('canplaythrough', playWhenReady, { once: true });
     } else {
         audioRef.current?.play().catch(e => {
-          if (e.name === 'NotAllowedError') setPlaybackPrompt(true);
-          else console.error("Playback error:", e);
+          if (e.name === 'NotAllowedError') {
+            setPlaybackPrompt(true);
+            setUserHasInteracted(false);
+          } else {
+            console.error("Playback error:", e);
+          }
         });
     }
   }, [currentSong, songs, loadSong, userHasInteracted]);
 
   // Handler for user gesture to unlock playback
   const handleUserPlaybackUnlock = () => {
+    // Increase volume to saved preference on first interaction
+    const savedPrefs = localStorage.getItem('playerPreferences');
+    if (savedPrefs) {
+      const prefs = JSON.parse(savedPrefs);
+      if (prefs.volume !== undefined && prefs.volume > 0.2) {
+        setVolume(prefs.volume);
+        if (audioRef.current) audioRef.current.volume = prefs.volume;
+      }
+    } else {
+      setVolume(1);
+      if (audioRef.current) audioRef.current.volume = 1;
+    }
+    
     setUserHasInteracted(true);
     setPlaybackPrompt(false);
-    playSong();
+    if (currentSong) {
+      audioRef.current?.play().catch(console.error);
+    }
   };
 
   // Effect to load a random song on initial app load when songs are available
@@ -226,10 +252,10 @@ export function PlayerProvider({ children }) {
       const randomSong = songs[randomIndex];
       
       console.log("Loading initial random song:", randomSong.title);
-      playSong(randomSong);
+      loadSong(randomSong);
       setInitialSongLoaded(true);
     }
-  }, [songs, initialSongLoaded, playSong]);
+  }, [songs, initialSongLoaded, loadSong]);
 
   // Play next song
   const playNextSong = useCallback(() => {
@@ -486,15 +512,21 @@ export function PlayerProvider({ children }) {
           }
         }}
       />
+      
       {playbackPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-surface p-8 rounded-lg flex flex-col items-center">
-            <p className="text-lg font-semibold mb-4">you have to allow background play</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-surface/95 backdrop-blur-xl p-8 rounded-2xl border border-overlay/30 shadow-2xl flex flex-col items-center max-w-sm mx-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-mauve to-lavender rounded-2xl flex items-center justify-center mb-4">
+              <i className="fas fa-play text-background text-2xl"></i>
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Start Listening</h3>
+            <p className="text-muted text-center mb-6">Click to start playing music</p>
             <button
               onClick={handleUserPlaybackUnlock}
-              className="px-6 py-2 bg-mauve text-background rounded-lg text-lg font-bold hover:bg-mauve/90"
+              className="px-6 py-3 bg-gradient-to-r from-mauve to-lavender text-background rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
             >
-              Allow
+              <i className="fas fa-play mr-2"></i>
+              Start Playing
             </button>
           </div>
         </div>
