@@ -1,6 +1,6 @@
 {
-  "name": "Music Stream",
-  "short_name": "Music",
+  "name": "Zed Legends",
+  "short_name": "Zed Legends",
   "description": "A modern music streaming application",
   "start_url": "/",
   "display": "standalone",

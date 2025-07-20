@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
 import { getUserWithRole } from '../../lib/getUserWithRole';
-import { sanitizeInput, validateEmail } from '../../lib/security';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
