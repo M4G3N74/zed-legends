@@ -248,17 +248,25 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted">Manage user roles and permissions</p>
                     </div>
                   </div>
-                  <button
-                    onClick={handleTriggerSync}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-mauve to-lavender text-background rounded-xl hover:shadow-lg transition-all disabled:opacity-60"
-                    disabled={syncing}
-                  >
-                    {syncing ? (
-                      <><span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-background"></span> Syncing...</>
-                    ) : (
-                      <><i className="fas fa-sync-alt"></i> Sync Library</>
-                    )}
-                  </button>
+                  <div className="flex gap-2">
+                    <a
+                      href="/pronunciation-manager"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue to-sky text-background rounded-xl hover:shadow-lg transition-all"
+                    >
+                      <i className="fas fa-microphone"></i> DJ Pronunciation
+                    </a>
+                    <button
+                      onClick={handleTriggerSync}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-mauve to-lavender text-background rounded-xl hover:shadow-lg transition-all disabled:opacity-60"
+                      disabled={syncing}
+                    >
+                      {syncing ? (
+                        <><span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-background"></span> Syncing...</>
+                      ) : (
+                        <><i className="fas fa-sync-alt"></i> Sync Library</>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 
                 {usersLoading ? (

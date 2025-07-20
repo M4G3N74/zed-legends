@@ -6,6 +6,8 @@ import { ThemeProvider } from '../components/context/ThemeContext';
 import Head from 'next/head';
 import React from 'react';
 import { UserProvider } from '../components/context/UserContext';
+import { DJProvider } from '../components/context/DJContext';
+import { AutoDJProvider } from '../components/context/AutoDJContext';
 import { Analytics } from '@vercel/analytics/react';
 
 class ErrorBoundary extends React.Component {
@@ -50,7 +52,11 @@ function MyApp({ Component, pageProps }) {
           <LibraryProvider>
             <PlayerProvider>
               <UserProvider>
-                <Component {...pageProps} />
+                <DJProvider>
+                  <AutoDJProvider>
+                    <Component {...pageProps} />
+                  </AutoDJProvider>
+                </DJProvider>
               </UserProvider>
             </PlayerProvider>
           </LibraryProvider>

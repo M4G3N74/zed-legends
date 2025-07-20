@@ -55,6 +55,11 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },
+  
+  // Add voice-cache to public folder
+  publicRuntimeConfig: {
+    voiceCachePath: '/voice-cache',
+  },
 
   // Disable x-powered-by header
   poweredByHeader: false,

@@ -1,6 +1,7 @@
 import SEO from '../components/ui/SEO';
 import Layout from '../components/layout/Layout';
 import SongList from '../components/features/SongList';
+import DJPurple from '../components/features/DJPurple';
 import Head from 'next/head';
 
 export default function LibraryPage() {
@@ -29,6 +30,7 @@ export default function LibraryPage() {
         />
         <div className="max-w-4xl mx-auto py-8">
           <h1 className="text-2xl font-bold mb-6 text-center">All Songs</h1>
+          <DJPurple />
           <SongList />
         </div>
       </Layout>

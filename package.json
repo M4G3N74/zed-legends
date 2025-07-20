@@ -13,7 +13,12 @@
     "dev:all": "concurrently \"npm run dev:server\" \"npm run dev\"",
     "start:all": "concurrently \"npm run server\" \"npm run start\"",
     "build:static": "next build && next export",
-    "start:optimized": "node server-optimized.js"
+    "start:optimized": "node server-optimized.js",
+    "generate-voices": "node scripts/generate-voices.js",
+    "generate-voices-supabase": "node scripts/generate-voices-supabase.cjs",
+    "migrate-voices": "node scripts/migrate-voices-to-supabase.js",
+    "setup-pronunciations": "node scripts/create-pronunciations-table.js",
+    "check-voice-cache": "node scripts/check-voice-cache.js"
   },
   "keywords": [
     "music",

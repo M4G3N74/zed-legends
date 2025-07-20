@@ -455,6 +455,15 @@ export function PlayerProvider({ children }) {
     savePlayerPreferences();
   }, [savePlayerPreferences]);
 
+  // Toggle play/pause
+  const togglePlayPause = useCallback(() => {
+    if (isPlaying) {
+      pauseSong();
+    } else {
+      playSong();
+    }
+  }, [isPlaying, pauseSong, playSong]);
+
   const contextValue = useMemo(() => ({
     currentSong,
     isPlaying,
@@ -473,6 +482,7 @@ export function PlayerProvider({ children }) {
     pauseSong,
     playNextSong,
     playPreviousSong,
+    togglePlayPause,
     toggleBassBoost,
     trackUserInteraction,
     setVolume: setVolumeCallback,
@@ -485,7 +495,7 @@ export function PlayerProvider({ children }) {
   }), [
     currentSong, isPlaying, duration, currentTime, volume, repeat, shuffle,
     smartShuffleEnabled, bassBoost, megaBoost, autoplay, audioRef,
-    loadSong, playSong, pauseSong, playNextSong, playPreviousSong,
+    loadSong, playSong, pauseSong, playNextSong, playPreviousSong, togglePlayPause,
     toggleBassBoost, trackUserInteraction, setVolumeCallback, setCurrentTimeCallback,
     setRepeatCallback, setShuffleCallback, setSmartShuffleEnabledCallback, setAutoplayCallback,
     setUserHasInteracted
