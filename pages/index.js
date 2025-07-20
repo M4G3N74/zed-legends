@@ -112,7 +112,7 @@ export default function Home() {
 
           {/* AI DJ */}
           <DJPurple />
-          <AutoStartDJ />
+          {(process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_DJ_ENABLED_IN_PROD === 'true') && <AutoStartDJ />}
           
           {/* Music Library Section */}
           <div className="bg-gradient-to-br from-surface/80 to-surface/40 backdrop-blur-xl rounded-2xl border border-overlay/30 shadow-xl">

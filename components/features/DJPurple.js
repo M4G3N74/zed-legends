@@ -32,6 +32,16 @@ export default function DJPurple() {
 
   // Initialize DJ mode from localStorage on component mount
   useEffect(() => {
+    // Check if we're in production and if DJ is enabled in production
+    const isProduction = process.env.NODE_ENV === 'production';
+    const djEnabledInProd = process.env.NEXT_PUBLIC_DJ_ENABLED_IN_PROD === 'true';
+    
+    // Don't start DJ in production unless explicitly enabled
+    if (isProduction && !djEnabledInProd) {
+      console.log('DJ disabled in production environment');
+      return;
+    }
+    
     const savedDjMode = localStorage.getItem('djMode') === 'true';
     if (savedDjMode) {
       setDjMode(true);
@@ -41,6 +51,11 @@ export default function DJPurple() {
     // Listen for audio playback events to detect when browser allows audio
     const handleAudioPlay = () => {
       if (!djMode && process.env.NEXT_PUBLIC_DJ_START_ON_AUDIO === 'true') {
+        // Check production setting again
+        if (isProduction && !djEnabledInProd) {
+          console.log('DJ auto-start on audio disabled in production');
+          return;
+        }
         console.log('Audio playback detected, starting DJ automatically');
         startDJMode();
       }
