@@ -4,7 +4,7 @@
   "description": "A music streaming application with auto-play functionality",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_ENV=development NEXT_PUBLIC_API_URL=http://localhost:3000 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

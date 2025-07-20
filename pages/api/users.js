@@ -51,7 +51,7 @@ export default async function handler(req, res) {
       const { error } = await supabase
         .from('users')
         .update({ role: newRole })
-        .eq('id', sanitizeInput(id));
+        .eq('id', id);
         
       if (error) throw error;
       return res.status(200).json({ success: true });

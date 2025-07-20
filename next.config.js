@@ -2,15 +2,71 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // output: 'export', // Removed to enable API routes
-  trailingSlash: true,
-  images: {
-    unoptimized: true
+  
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()'
+          }
+        ]
+      }
+    ];
   },
+
+  // API rewrites
+  async rewrites() {
+    return process.env.NODE_ENV === 'development' ? [] : [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:3000/api/:path*',
+      },
+      {
+        source: '/music/:path*',
+        destination: 'http://localhost:3000/music/:path*',
+      },
+    ];
+  },
+
+  // Environment variables validation
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || ''
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  // Remove rewrites since we're using static export
-}
+
+  // Image optimization security
+  images: {
+    domains: ['zed-legends.vercel.app'],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+  },
+
+  // Disable x-powered-by header
+  poweredByHeader: false,
+
+  // Compression
+  compress: true,
+
+  // Experimental features
+  experimental: {
+    // Enable strict mode for better security
+    strictNextHead: true,
+  }
+};
 
 module.exports = nextConfig;
