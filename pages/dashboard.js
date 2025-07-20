@@ -6,6 +6,7 @@ import EditMetadataModal from '../components/features/EditMetadataModal';
 import SongListInfinite from '../components/features/SongListInfinite';
 import { useState, useEffect } from 'react';
 import { useUser } from '../components/context/UserContext';
+import Head from 'next/head';
 
 export default function DashboardPage() {
   const { user, role, loading } = useUser();
@@ -165,6 +166,22 @@ export default function DashboardPage() {
 
   return (
     <>
+      <Head>
+        <title>Dashboard | Zed Legends</title>
+        <meta name="description" content="Manage your music library, upload new songs, and view stats." />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://zed-legends.vercel.app/dashboard" />
+        <meta property="og:title" content="Dashboard | Zed Legends" />
+        <meta property="og:description" content="Manage your music library, upload new songs, and view stats." />
+        <meta property="og:image" content="https://zed-legends.vercel.app/images/album-art.png" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://zed-legends.vercel.app/dashboard" />
+        <meta name="twitter:title" content="Dashboard | Zed Legends" />
+        <meta name="twitter:description" content="Manage your music library, upload new songs, and view stats." />
+        <meta name="twitter:image" content="https://zed-legends.vercel.app/images/album-art.png" />
+      </Head>
       <SEO
         title="Dashboard | Zed Legends"
         description="Manage your music library, upload new songs, and view stats."

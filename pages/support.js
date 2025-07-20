@@ -71,6 +71,19 @@ export default function SupportPage() {
     <Layout>
       <Head>
         <title>Support | Zed Legends</title>
+        <meta name="description" content="Need help or want to get in touch with Zed Legends? Contact us for support, song removal, copyright, or urgent issues." />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://zed-legends.vercel.app/support" />
+        <meta property="og:title" content="Support | Zed Legends" />
+        <meta property="og:description" content="Need help or want to get in touch with Zed Legends? Contact us for support, song removal, copyright, or urgent issues." />
+        <meta property="og:image" content="https://zed-legends.vercel.app/images/album-art.png" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://zed-legends.vercel.app/support" />
+        <meta name="twitter:title" content="Support | Zed Legends" />
+        <meta name="twitter:description" content="Need help or want to get in touch with Zed Legends? Contact us for support, song removal, copyright, or urgent issues." />
+        <meta name="twitter:image" content="https://zed-legends.vercel.app/images/album-art.png" />
       </Head>
       <div className="flex flex-col items-center justify-center min-h-[60vh] bg-background px-4 py-12">
         <div className="bg-surface/80 backdrop-blur-xl rounded-xl shadow-lg p-8 max-w-lg w-full text-center border border-overlay/30">

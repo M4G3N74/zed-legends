@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { getUserWithRole } from '../../lib/getUserWithRole';
+import { sanitizeInput, validateEmail } from '../../lib/security';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -7,6 +8,10 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
+  // Security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  
   const { user, role } = await getUserWithRole(req);
   
   if (!user || role !== 'admin') {
@@ -29,19 +34,31 @@ export default async function handler(req, res) {
   if (req.method === 'PUT') {
     try {
       const { id, role: newRole } = req.body;
-      if (!id || !['admin', 'mod1', 'mod2'].includes(newRole)) {
-        return res.status(400).json({ error: 'Invalid request.' });
+      
+      // Input validation
+      if (!id || typeof id !== 'string' || id.length > 100) {
+        return res.status(400).json({ error: 'Invalid user ID.' });
+      }
+      
+      if (!['admin', 'mod1', 'mod2'].includes(newRole)) {
+        return res.status(400).json({ error: 'Invalid role.' });
+      }
+      
+      // Prevent self-role change
+      if (id === user.id) {
+        return res.status(400).json({ error: 'Cannot change your own role.' });
       }
       
       const { error } = await supabase
         .from('users')
         .update({ role: newRole })
-        .eq('id', id);
+        .eq('id', sanitizeInput(id));
+        
       if (error) throw error;
       return res.status(200).json({ success: true });
     } catch (error) {
       console.error('Error updating user role:', error);
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Failed to update user role.' });
     }
   }
 

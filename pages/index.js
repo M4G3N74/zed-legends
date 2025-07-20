@@ -41,6 +41,22 @@ export default function Home() {
 
   return (
     <>
+      <Head>
+        <title>Zed Legends | Home</title>
+        <meta name="description" content="Discover and stream legendary Zambian music. Listen to playlists, like your favorites, and enjoy a beautiful, mobile-first music experience." />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://zed-legends.vercel.app/" />
+        <meta property="og:title" content="Zed Legends | Home" />
+        <meta property="og:description" content="Discover and stream legendary Zambian music. Listen to playlists, like your favorites, and enjoy a beautiful, mobile-first music experience." />
+        <meta property="og:image" content="https://zed-legends.vercel.app/images/album-art.png" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://zed-legends.vercel.app/" />
+        <meta name="twitter:title" content="Zed Legends | Home" />
+        <meta name="twitter:description" content="Discover and stream legendary Zambian music. Listen to playlists, like your favorites, and enjoy a beautiful, mobile-first music experience." />
+        <meta name="twitter:image" content="https://zed-legends.vercel.app/images/album-art.png" />
+      </Head>
       <BetaBanner />
       <SEO
         title="Zed Legends | Home"

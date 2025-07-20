@@ -6,12 +6,25 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  // Security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minutes cache
+  
+  // CORS headers (restrict in production)
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://zed-legends.vercel.app'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -22,11 +35,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Pagination and search params
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 50;
-    const search = req.query.search || '';
-    const sortBy = req.query.sortBy || 'title';
+    // Input validation and sanitization
+    const page = Math.max(1, Math.min(parseInt(req.query.page, 10) || 1, 1000));
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 50, 100));
+    const search = (req.query.search || '').toString().trim().substring(0, 100);
+    const sortBy = ['title', 'artist', 'album'].includes(req.query.sortBy) ? req.query.sortBy : 'title';
     const pageSize = Math.min(limit, 100);
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
@@ -38,9 +51,10 @@ export default async function handler(req, res) {
       .not('title', 'ilike', '%mixdown%')
       .not('artist', 'ilike', '%mixdown%');
 
-    // Add search filter if provided
-    if (search) {
-      query = query.or(`title.ilike.%${search}%,artist.ilike.%${search}%,album.ilike.%${search}%`);
+    // Add search filter if provided (prevent SQL injection)
+    if (search && search.length >= 2) {
+      const sanitizedSearch = search.replace(/[%_]/g, '\\$&'); // Escape LIKE wildcards
+      query = query.or(`title.ilike.%${sanitizedSearch}%,artist.ilike.%${sanitizedSearch}%,album.ilike.%${sanitizedSearch}%`);
     }
 
     // Add sorting

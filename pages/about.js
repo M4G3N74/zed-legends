@@ -6,6 +6,19 @@ export default function About() {
     <Layout>
       <Head>
         <title>About | Zed Legends</title>
+        <meta name="description" content="Zed Legends is a modern music streaming platform dedicated to celebrating and preserving the legacy of Zambian music." />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://zed-legends.vercel.app/about" />
+        <meta property="og:title" content="About | Zed Legends" />
+        <meta property="og:description" content="Zed Legends is a modern music streaming platform dedicated to celebrating and preserving the legacy of Zambian music." />
+        <meta property="og:image" content="https://zed-legends.vercel.app/images/album-art.png" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://zed-legends.vercel.app/about" />
+        <meta name="twitter:title" content="About | Zed Legends" />
+        <meta name="twitter:description" content="Zed Legends is a modern music streaming platform dedicated to celebrating and preserving the legacy of Zambian music." />
+        <meta name="twitter:image" content="https://zed-legends.vercel.app/images/album-art.png" />
       </Head>
       <div className="flex flex-col items-center justify-center min-h-[60vh] bg-background px-4 py-12">
         <div className="bg-surface rounded-xl shadow-lg p-8 max-w-lg w-full text-center">
