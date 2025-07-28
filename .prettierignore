@@ -1,0 +1,12 @@
+# Ignore artifacts
+.next
+node_modules
+out
+.vercel
+
+# Ignore lockfiles
+package-lock.json
+yarn.lock
+
+# Ignore logs
+*.log

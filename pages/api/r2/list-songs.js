@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         .filter(obj => obj.Key.endsWith('.mp3'))
         .map(obj => ({
           key: obj.Key,
-          url: `https://${process.env.R2_PUBLIC_DOMAIN || process.env.R2_BUCKET_NAME}.${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${encodeURIComponent(obj.Key)}`,
+          url: `https://pub-ce53c504acc542c7a0155e598af3bf57.r2.dev/${encodeURIComponent(obj.Key)}`,
           size: obj.Size,
           lastModified: obj.LastModified,
         }));

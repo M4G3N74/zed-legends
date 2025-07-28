@@ -2,6 +2,9 @@
 // This endpoint receives user listening data and returns personalized song recommendations
 
 export default async function handler(req, res) {
+  // DJ functionality disabled
+  return res.status(503).json({ error: 'DJ functionality has been disabled' });
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

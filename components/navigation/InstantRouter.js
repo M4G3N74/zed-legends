@@ -1,5 +1,6 @@
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 // Cache for prefetched pages
 const pageCache = new Map();
@@ -15,7 +16,7 @@ export function useInstantNavigation() {
     
     prefetchQueue.add(href);
     try {
-      await router.prefetch(href);
+      router.prefetch(href);
       pageCache.set(href, true);
     } catch (error) {
       console.warn('Failed to prefetch:', href, error);
@@ -27,7 +28,8 @@ export function useInstantNavigation() {
   // Navigate instantly
   const navigateInstant = async (href) => {
     // If already on the page, do nothing
-    if (router.asPath === href) return;
+    // Note: `usePathname` would be better here if available in context
+    if (typeof window !== 'undefined' && window.location.pathname === href) return;
     
     // Navigate immediately - Next.js will handle the rest
     await router.push(href);
@@ -67,23 +69,17 @@ export function useInstantNavigation() {
 
 // Enhanced Link component with instant navigation
 export function InstantLink({ href, children, className, ...props }) {
-  const { navigateInstant, handleMouseEnter, handleMouseLeave } = useInstantNavigation();
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    navigateInstant(href);
-  };
+  const { handleMouseEnter, handleMouseLeave } = useInstantNavigation();
 
   return (
-    <a
+    <Link
       href={href}
       className={className}
-      onClick={handleClick}
       onMouseEnter={() => handleMouseEnter(href)}
       onMouseLeave={handleMouseLeave}
       {...props}
     >
       {children}
-    </a>
+    </Link>
   );
 }

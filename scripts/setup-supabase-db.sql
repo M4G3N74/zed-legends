@@ -1,5 +1,5 @@
 -- Create the song_likes table if it doesn't exist
-CREATE TABLE song_likes (
+CREATE TABLE IF NOT EXISTS song_likes (
     id SERIAL PRIMARY KEY,
     song_id VARCHAR(255) NOT NULL,
     user_id VARCHAR(255) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE song_likes (
 );
 
 -- Table to store song metadata cache
-CREATE TABLE songs (
+CREATE TABLE IF NOT EXISTS songs (
     id VARCHAR(255) PRIMARY KEY, -- Using the file hash as the ID
     title TEXT,
     artist TEXT,
@@ -31,6 +31,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger to automatically update 'updated_at' on songs table
+DROP TRIGGER IF EXISTS set_songs_timestamp ON songs;
 CREATE TRIGGER set_songs_timestamp
 BEFORE UPDATE ON songs
 FOR EACH ROW
@@ -44,8 +45,11 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO postgres;
 alter table song_likes enable row level security;
 
 -- Allow anonymous users to insert likes (for public apps, development only)
+-- Drop the old policy if it exists
+DROP POLICY IF EXISTS "Allow anon insert" ON song_likes;
+-- Create the new policy with the correct clause
 create policy "Allow anon insert"
 on song_likes
 for insert
 to anon
-using (true); 
+with check (true); 

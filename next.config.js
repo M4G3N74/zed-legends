@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   
   // Security headers
   async headers() {
@@ -30,20 +29,6 @@ const nextConfig = {
     ];
   },
 
-  // API rewrites
-  async rewrites() {
-    return process.env.NODE_ENV === 'development' ? [] : [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:3000/api/:path*',
-      },
-      {
-        source: '/music/:path*',
-        destination: 'http://localhost:3000/music/:path*',
-      },
-    ];
-  },
-
   // Environment variables validation
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
@@ -51,7 +36,14 @@ const nextConfig = {
 
   // Image optimization security
   images: {
-    domains: ['zed-legends.vercel.app'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'zed-legends.vercel.app',
+        port: '',
+        pathname: '/**',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },

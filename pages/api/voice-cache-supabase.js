@@ -10,6 +10,9 @@ const supabase = createClient(
 const BUCKET_NAME = 'voice-cache';
 
 export default async function handler(req, res) {
+  // DJ functionality disabled
+  return res.status(503).json({ error: 'DJ functionality has been disabled' });
+  
   // Security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -49,73 +52,80 @@ export default async function handler(req, res) {
           console.log('Proxied URL:', proxiedUrl);
             
           return res.status(200).json({ url: proxiedUrl, cached: true });
+        } else {
+          // File does not exist, generate it using ElevenLabs
+          console.log(`Voice file not found in cache: ${fileName}. Generating...`);
+          
+          const ELEVENLABS_API_KEY = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+          const VOICE_GENERATION_URL = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId || 'EXAVITQu4vr4xnSDxMaL'}`;
+
+          if (!ELEVENLABS_API_KEY) {
+            console.error('ElevenLabs API key not configured.');
+            return res.status(500).json({ error: 'ElevenLabs API key not configured.' });
+          }
+
+          try {
+            const elevenLabsResponse = await fetch(VOICE_GENERATION_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY,
+              },
+              body: JSON.stringify({
+                text: text,
+                model_id: 'eleven_multilingual_v2', // Or another appropriate model
+                voice_settings: {
+                  stability: 0.5,
+                  similarity_boost: 0.75,
+                },
+              }),
+            });
+
+            if (!elevenLabsResponse.ok) {
+              const errorData = await elevenLabsResponse.json();
+              console.error('ElevenLabs API error:', errorData);
+              return res.status(elevenLabsResponse.status).json({ error: 'Failed to generate voice from ElevenLabs.', details: errorData });
+            }
+
+            const audioBuffer = await elevenLabsResponse.arrayBuffer();
+            
+            // Upload to Supabase Storage
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from(BUCKET_NAME)
+              .upload(fileName, audioBuffer, {
+                contentType: 'audio/mpeg',
+                upsert: true, // Overwrite if exists (though it shouldn't if we got here)
+              });
+
+            if (uploadError) {
+              console.error('Supabase upload error:', uploadError);
+              return res.status(500).json({ error: 'Failed to upload voice to cache.', details: uploadError.message });
+            }
+
+            // Get public URL
+            const { data: urlData } = await supabase.storage
+              .from(BUCKET_NAME)
+              .getPublicUrl(fileName);
+
+            const publicUrl = urlData.publicUrl;
+            const proxiedUrl = `/api/cors-proxy?url=${encodeURIComponent(publicUrl)}`;
+
+            console.log('Successfully generated and cached voice file:', fileName);
+            console.log('Cached URL:', publicUrl);
+            console.log('Proxied URL:', proxiedUrl);
+
+            return res.status(200).json({ url: proxiedUrl, cached: false });
+
+          } catch (elevenLabsError) {
+            console.error('Error during ElevenLabs voice generation or upload:', elevenLabsError);
+            return res.status(500).json({ error: 'Internal server error during voice generation.', details: elevenLabsError.message });
+          }
         }
       } catch (error) {
         console.error('Error checking cache:', error);
-        // Continue to generation if check fails
+        // If there's an error checking the cache, we should probably not proceed to generation.
+        return res.status(500).json({ error: 'Error checking voice cache.' });
       }
-      
-      // If not in cache, generate from ElevenLabs
-      const API_KEY = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
-      if (!API_KEY) {
-        return res.status(500).json({ error: 'ElevenLabs API key not found' });
-      }
-      
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId || 'EXAVITQu4vr4xnSDxMaL'}`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'audio/mpeg',
-          'Content-Type': 'application/json',
-          'xi-api-key': API_KEY
-        },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_monolingual_v1',
-          voice_settings: {
-            stability: 0.6,
-            similarity_boost: 0.8,
-            style: 0.4
-          }
-        })
-      });
-      
-      if (!response.ok) {
-        return res.status(response.status).json({ error: 'Failed to generate voice' });
-      }
-      
-      // Get audio as buffer
-      const audioBuffer = await response.arrayBuffer();
-      
-      // Upload to Supabase storage
-      const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from(BUCKET_NAME)
-        .upload(fileName, Buffer.from(audioBuffer), {
-          contentType: 'audio/mpeg',
-          cacheControl: '3600',
-          upsert: true
-        });
-      
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        return res.status(500).json({ error: 'Failed to upload voice file' });
-      }
-      
-      // Get public URL
-      const { data: urlData } = await supabase
-        .storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(fileName);
-      
-      // Create a proxied URL to avoid CORS issues
-      const publicUrl = urlData.publicUrl;
-      const proxiedUrl = `/api/cors-proxy?url=${encodeURIComponent(publicUrl)}`;
-      
-      console.log('Generated new voice file:', fileName);
-      console.log('Public URL:', publicUrl);
-      console.log('Proxied URL:', proxiedUrl);
-      
-      return res.status(200).json({ url: proxiedUrl, cached: false });
     } catch (error) {
       console.error('Voice cache error:', error);
       return res.status(500).json({ error: error.message });

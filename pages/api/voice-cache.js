@@ -9,6 +9,9 @@ if (!fs.existsSync(CACHE_DIR)) {
 }
 
 export default async function handler(req, res) {
+  // DJ functionality disabled
+  return res.status(503).json({ error: 'DJ functionality has been disabled' });
+  
   // Security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');

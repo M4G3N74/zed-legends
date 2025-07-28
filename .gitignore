@@ -17,6 +17,7 @@ dist/
 
 # Runtime data (user interactions, etc.)
 data/
+public/voice-cache/
 
 # OS files
 .DS_Store

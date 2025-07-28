@@ -1,7 +1,7 @@
 // API endpoint to track user interactions with songs
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase client
+// Initialize Supabase client WITH SERVICE KEY to bypass RLS for diagnostics
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -31,63 +31,35 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid interaction type' });
     }
     
-    console.log(`Tracking ${interactionType} interaction for song ${songId} by user ${userId}`);
+    console.log(`Tracking ${interactionType} interaction for song ${songId} by user ${userId} using SERVICE KEY`);
     
     // Store interaction in Supabase
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('song_interactions')
       .insert({
         user_id: userId,
         song_id: songId,
         interaction_type: interactionType,
         timestamp: timestamp || new Date().toISOString()
-      });
+      })
+      .select();
     
     if (error) {
-      console.error('Error storing interaction:', error);
+      console.error('--- Supabase Error (with Service Key) ---');
+      console.error('Error object:', JSON.stringify(error, null, 2));
+      console.error('--- End Supabase Error ---');
       
-      // If table doesn't exist, create it
-      if (error.code === '42P01') {
-        console.log('Creating song_interactions table...');
-        
-        // Create the table using SQL
-        await supabase.rpc('exec_sql', {
-          sql: `
-            CREATE TABLE IF NOT EXISTS public.song_interactions (
-              id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-              user_id TEXT NOT NULL,
-              song_id TEXT NOT NULL,
-              interaction_type TEXT NOT NULL CHECK (interaction_type IN ('play', 'skip', 'like')),
-              timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-            );
-            
-            CREATE INDEX IF NOT EXISTS idx_song_interactions_user_id ON public.song_interactions(user_id);
-            CREATE INDEX IF NOT EXISTS idx_song_interactions_song_id ON public.song_interactions(song_id);
-          `
-        });
-        
-        // Try inserting again
-        const { error: retryError } = await supabase
-          .from('song_interactions')
-          .insert({
-            user_id: userId,
-            song_id: songId,
-            interaction_type: interactionType,
-            timestamp: timestamp || new Date().toISOString()
-          });
-        
-        if (retryError) {
-          console.error('Error storing interaction after table creation:', retryError);
-          return res.status(500).json({ error: 'Failed to store interaction' });
-        }
-      } else {
-        return res.status(500).json({ error: 'Failed to store interaction' });
-      }
+      return res.status(500).json({ 
+        error: 'Failed to store interaction even with service key.', 
+        details: error
+      });
     }
     
-    return res.status(200).json({ success: true });
+    console.log('Interaction stored successfully (with Service Key):', data);
+    return res.status(200).json({ success: true, data });
+    
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error in handler:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

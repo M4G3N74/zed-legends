@@ -1,9 +1,16 @@
-import { createClient } from '@supabase/supabase-js';
+import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { apiEndpoints } from '../../../lib/api';
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const s3Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
+
+console.log('API /api/songs hit - using R2 direct listing');
 
 export default async function handler(req, res) {
   // Security headers
@@ -35,61 +42,74 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Input validation and sanitization
     const page = Math.max(1, Math.min(parseInt(req.query.page, 10) || 1, 1000));
     const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 50, 100));
     const search = (req.query.search || '').toString().trim().substring(0, 100);
-    const sortBy = ['title', 'artist', 'album'].includes(req.query.sortBy) ? req.query.sortBy : 'title';
     const pageSize = Math.min(limit, 100);
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
 
-    // Build query with search and sort
-    let query = supabase
-      .from('songs')
-      .select('*')
-      .not('title', 'ilike', '%mixdown%')
-      .not('artist', 'ilike', '%mixdown%');
+    console.log(`Fetching songs from R2: page=${page}, limit=${limit}, search='${search}'`);
 
-    // Add search filter if provided (prevent SQL injection)
+    // Get all songs from R2
+    const Bucket = process.env.R2_BUCKET_NAME;
+    let allSongs = [];
+    let ContinuationToken = undefined;
+
+    do {
+      const command = new ListObjectsV2Command({ Bucket, ContinuationToken });
+      const data = await s3Client.send(command);
+
+      const mp3s = (data.Contents || [])
+        .filter(obj => obj.Key.endsWith('.mp3') && !obj.Key.toLowerCase().includes('mixdown'))
+        .map(obj => {
+          const filename = obj.Key.split('/').pop().replace('.mp3', '');
+          const parts = filename.split(' - ');
+          return {
+            id: obj.Key,
+            title: parts[1] || filename,
+            artist: parts[0] || 'Unknown Artist',
+            album: 'Unknown Album',
+            path: obj.Key,
+            url: `https://pub-ce53c504acc542c7a0155e598af3bf57.r2.dev/${encodeURIComponent(obj.Key)}`,
+            size: obj.Size,
+            lastModified: obj.LastModified,
+          };
+        });
+
+      allSongs = allSongs.concat(mp3s);
+      ContinuationToken = data.IsTruncated ? data.NextContinuationToken : undefined;
+    } while (ContinuationToken);
+
+    // Filter by search if provided
+    let filteredSongs = allSongs;
     if (search && search.length >= 2) {
-      const sanitizedSearch = search.replace(/[%_]/g, '\\$&'); // Escape LIKE wildcards
-      query = query.or(`title.ilike.%${sanitizedSearch}%,artist.ilike.%${sanitizedSearch}%,album.ilike.%${sanitizedSearch}%`);
+      const searchLower = search.toLowerCase();
+      filteredSongs = allSongs.filter(song => 
+        song.title.toLowerCase().includes(searchLower) ||
+        song.artist.toLowerCase().includes(searchLower) ||
+        song.album.toLowerCase().includes(searchLower)
+      );
     }
 
-    // Add sorting
-    query = query.order(sortBy, { ascending: true });
+    // Sort songs
+    filteredSongs.sort((a, b) => a.title.localeCompare(b.title));
 
-    // Execute query with pagination
-    const { data: songs, error } = await query.range(from, to);
+    // Paginate
+    const from = (page - 1) * pageSize;
+    const paginatedSongs = filteredSongs.slice(from, from + pageSize);
 
-    // Get total count with same filters
-    let countQuery = supabase
-      .from('songs')
-      .select('*', { count: 'exact', head: true })
-      .not('title', 'ilike', '%mixdown%')
-      .not('artist', 'ilike', '%mixdown%');
-
-    if (search) {
-      countQuery = countQuery.or(`title.ilike.%${search}%,artist.ilike.%${search}%,album.ilike.%${search}%`);
-    }
-
-    const { count: filteredCount, error: countError } = await countQuery;
-
-    if (error || countError) {
-      console.error('Error fetching songs from Supabase:', error || countError);
-      throw error || countError;
-    }
+    console.log('Songs fetched from R2:', paginatedSongs.length);
+    console.log('Total filtered count:', filteredSongs.length);
 
     res.status(200).json({
-      songs,
-      totalSongs: filteredCount,
+      songs: paginatedSongs,
+      totalSongs: filteredSongs.length,
       page,
       pageSize,
-      hasMore: to + 1 < filteredCount
+      hasMore: from + pageSize < filteredSongs.length
     });
 
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch songs from the database.' });
+    console.error('API /api/songs general error:', error);
+    res.status(500).json({ error: 'Failed to fetch songs from the database.', details: error.message });
   }
-} 
+}
