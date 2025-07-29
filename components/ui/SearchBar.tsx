@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useLibrary, LibraryContextType } from '../context/LibraryContext.tsx';
+import { useLibrary, LibraryContextType } from '../context/LibraryContext';
 
 export default function SearchBar() {
   const {

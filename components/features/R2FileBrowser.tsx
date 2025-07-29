@@ -108,7 +108,7 @@ const FolderRow = ({ file, currentPath, handleNavigate, onRename }: FolderRowPro
 };
 
 interface R2FileBrowserProps {
-  onEdit: (file: R2File) => void;
+  onEdit?: (file: R2File) => void;
   canRename: boolean;
 }
 
@@ -290,7 +290,7 @@ export default function R2FileBrowser({ onEdit, canRename }: R2FileBrowserProps)
                   file={file}
                   currentPath={currentPath}
                   handleNavigate={handleNavigate}
-                  onRename={canRename ? handleRename : undefined}
+                  onRename={handleRename}
                 />
               ) : (
                 <tr key={file.Key} className="border-b border-overlay hover:bg-overlay/50">

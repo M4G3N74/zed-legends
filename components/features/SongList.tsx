@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useLibrary, LibraryContextType } from '../context/LibraryContext';
 import { usePlayer, SimplePlayerContextType } from '../context/SimplePlayerContext';
-import SongItem from './SongItem.tsx';
-import Pagination from '../ui/Pagination.tsx';
+import SongItem from './SongItem';
+import Pagination from '../ui/Pagination';
 
 interface Song {
   id: string;
@@ -118,9 +118,9 @@ export default function SongList() {
       <div className="flex justify-end mb-4">
         <div className="flex items-center gap-2 bg-surface rounded-lg p-1 border border-overlay">
           <button
-            onClick={() => setPaginationMode('standard')}
+            onClick={() => setPaginationMode('pagination')}
             className={`px-3 py-1 rounded text-sm transition-colors ${
-              paginationMode === 'standard'
+              paginationMode === 'pagination'
                 ? 'bg-mauve text-background'
                 : 'text-muted hover:text-text'
             }`}

@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function DeleteConfirmationModal({ song, onClose, onConfirm }) {
+interface DeleteConfirmationModalProps {
+  song: { title: string }; // Adjust the type as needed for your song object
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+}
+
+export default function DeleteConfirmationModal({ song, onClose, onConfirm }: DeleteConfirmationModalProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   
   // Handle delete confirmation
   const handleConfirm = async () => {
@@ -19,8 +25,8 @@ export default function DeleteConfirmationModal({ song, onClose, onConfirm }) {
   
   // Close modal when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
@@ -40,7 +46,7 @@ export default function DeleteConfirmationModal({ song, onClose, onConfirm }) {
   
   // Handle escape key press
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
       }

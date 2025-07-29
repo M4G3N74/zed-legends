@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from './Sidebar.tsx';
-import NowPlayingBar from './NowPlayingBar.tsx';
-import SearchBar from '../ui/SearchBar.tsx';
-import BetaBanner from '../ui/BetaBanner.tsx';
+import Sidebar from './Sidebar';
+import NowPlayingBar from './NowPlayingBar';
+import SearchBar from '../ui/SearchBar';
+import BetaBanner from '../ui/BetaBanner';
 import { useLibrary, LibraryContextType } from '../context/LibraryContext';
 
 import Link from 'next/link';

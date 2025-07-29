@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { usePlayer } from '../context/SimplePlayerContext';
 import { useLibrary } from '../context/LibraryContext';
 import EditMetadataModal from './EditMetadataModal';
-// import DeleteConfirmationModal from './DeleteConfirmationModal';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 interface Song {
   id: string;
@@ -11,7 +11,8 @@ interface Song {
   album?: string;
   albumArt?: string;
   path: string;
-  file?: string; // Assuming file is also part of the song object for deletion
+  duration: number;
+  url?: string;
 }
 
 interface SongItemProps {
@@ -27,7 +28,7 @@ export default function SongItem({ song, isActive }: SongItemProps) {
 
   const { isPlaying, pauseSong, playSong, resumeSong } = usePlayer();
 
-  const { updateSongMetadata, deleteSong } = useLibrary();
+  const { updateSongMetadata } = useLibrary();
 
   const handleItemClick = useCallback(() => {
     if (isClicking) return;
@@ -42,7 +43,7 @@ export default function SongItem({ song, isActive }: SongItemProps) {
         resumeSong();
       }
     } else {
-      playSong(song);
+      playSong({ ...song, album: song.album ?? '' });
     }
   }, [isActive, isPlaying, pauseSong, resumeSong, playSong, song, isClicking]);
 
@@ -63,10 +64,7 @@ export default function SongItem({ song, isActive }: SongItemProps) {
   // Handle metadata update
   const handleMetadataUpdate = useCallback(async (metadata: Partial<Song>) => {
     try {
-      await updateSongMetadata(song.id, {
-        ...metadata,
-        file: song.path
-      });
+      await updateSongMetadata(song.id, metadata);
       setShowEditModal(false);
     } catch (error) {
       console.error('Error updating metadata:', error);
@@ -81,11 +79,10 @@ export default function SongItem({ song, isActive }: SongItemProps) {
   // Handle song deletion
   const handleDeleteConfirm = async () => {
     try {
-      await deleteSong(song.id, song.file);
+      // Delete functionality disabled
       setShowDeleteModal(false);
     } catch (error) {
       console.error('Error deleting song:', error);
-      // Show error notification
     }
   };
 

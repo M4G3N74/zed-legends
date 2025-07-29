@@ -79,6 +79,14 @@ export default function DashboardClientPage() {
       route: '/dashboard/storage'
     },
     {
+      title: 'Artists',
+      description: 'Browse artists and their music',
+      icon: 'fa-microphone',
+      color: 'bg-indigo-500',
+      stats: 'Browse artists',
+      route: '/dashboard/artists'
+    },
+    {
       title: 'System Settings',
       description: 'Configure platform settings',
       icon: 'fa-cog',

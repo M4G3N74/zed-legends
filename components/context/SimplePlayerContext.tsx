@@ -12,7 +12,7 @@ interface Song {
   url?: string;
 }
 
-interface SimplePlayerContextType {
+export interface SimplePlayerContextType {
   currentSong: Song | null;
   isPlaying: boolean;
   currentTime: number;

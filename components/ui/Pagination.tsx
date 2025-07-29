@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLibrary } from '../context/LibraryContext.tsx';
+import { useLibrary } from '../context/LibraryContext';
 
 interface LibraryContextType {
   currentPage: number;

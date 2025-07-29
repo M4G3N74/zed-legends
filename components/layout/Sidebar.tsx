@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTheme } from '../context/ThemeContext.tsx';
-import { useLibrary } from '../context/LibraryContext.tsx';
+import { useTheme } from '../context/ThemeContext';
+import { useLibrary } from '../context/LibraryContext';
 
 import { InstantLink } from '../navigation/InstantRouter';
 
