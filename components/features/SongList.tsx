@@ -141,12 +141,12 @@ export default function SongList() {
           </button>
         </div>
       </div>
-      {/* Playlist container - grid on md+, list on mobile */}
+      {/* Playlist container - responsive grid */}
       <div
         ref={containerRef}
-        className="playlist-container max-h-[calc(100vh-300px)] overflow-y-auto pr-1"
+        className="playlist-container max-h-[calc(100vh-250px)] sm:max-h-[calc(100vh-300px)] overflow-y-auto pr-1"
       >
-        <ul className="playlist space-y-1 grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-3">
+        <ul className="playlist space-y-1 sm:space-y-2 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-1 sm:gap-2 lg:gap-3">
           {songs.map((song) => (
             song && (
               <SongItem
@@ -184,10 +184,10 @@ export default function SongList() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="scroll-to-top fixed bottom-28 right-6 bg-mauve text-background p-3 rounded-full shadow-lg hover:bg-lavender transition-colors"
+          className="scroll-to-top fixed bottom-20 sm:bottom-28 right-4 sm:right-6 bg-mauve text-background p-2 sm:p-3 rounded-full shadow-lg hover:bg-lavender transition-colors z-40"
           aria-label="Scroll to top"
         >
-          <i className="fas fa-arrow-up"></i>
+          <i className="fas fa-arrow-up text-sm sm:text-base"></i>
         </button>
       )}
     </div>

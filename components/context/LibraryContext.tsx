@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useReducer, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { apiEndpoints, fetchFromAPI } from '../../lib/api';
 

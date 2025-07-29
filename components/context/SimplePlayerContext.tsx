@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from 'react';
 import { useLibrary } from './LibraryContext';
 
@@ -65,14 +67,34 @@ export function SimplePlayerProvider({ children }: { children: ReactNode }) {
     setCurrentPlaylist(librarySongs);
   }, [librarySongs]);
 
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = '';
+        currentAudio.load();
+      }
+    };
+  }, [currentAudio]);
+
   const playSong = useCallback((song: Song) => {
+    // Stop and cleanup current audio
     if (currentAudio) {
       currentAudio.pause();
+      currentAudio.src = '';
+      currentAudio.load();
     }
+    
+    // Reset state immediately
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
 
     const audio = new Audio();
     const audioUrl = `/api/proxy-audio?url=${encodeURIComponent(song.url || song.path)}`;
     audio.src = audioUrl;
+    audio.preload = 'metadata';
     
     audio.addEventListener('play', () => {
       setIsPlaying(true);
@@ -94,7 +116,16 @@ export function SimplePlayerProvider({ children }: { children: ReactNode }) {
       if (isRepeating) {
         playSong(song);
       } else {
-        playNextSong();
+        // Handle next song logic here to avoid circular dependency
+        if (queue.length > 0) {
+          const nextSong = queue[0];
+          setQueue(prev => prev.slice(1));
+          setTimeout(() => playSong(nextSong), 100);
+        } else if (currentPlaylist.length > 0) {
+          const currentIndex = currentPlaylist.findIndex(s => s.id === song.id);
+          const nextIndex = (currentIndex + 1) % currentPlaylist.length;
+          setTimeout(() => playSong(currentPlaylist[nextIndex]), 100);
+        }
       }
     });
     audio.addEventListener('timeupdate', () => {
@@ -102,25 +133,29 @@ export function SimplePlayerProvider({ children }: { children: ReactNode }) {
       setDuration(audio.duration || 0);
     });
     
+    // Set current song and audio immediately
+    setCurrentSong(song);
+    setCurrentAudio(audio);
+    
     audio.play().then(() => {
-      setCurrentSong(song);
-      setCurrentAudio(audio);
       setUserHasInteracted(true);
     }).catch(error => {
       console.error('Play failed:', error);
+      setIsPlaying(false);
     });
-  }, [currentAudio, isRepeating]);
+  }, [currentAudio, isRepeating, queue, currentPlaylist]);
 
   const pauseSong = useCallback(() => {
-    if (currentAudio) {
+    if (currentAudio && !currentAudio.paused) {
       currentAudio.pause();
     }
   }, [currentAudio]);
 
   const resumeSong = useCallback(() => {
-    if (currentAudio) {
+    if (currentAudio && currentAudio.paused) {
       currentAudio.play().catch(error => {
         console.error('Resume failed:', error);
+        setIsPlaying(false);
       });
     }
   }, [currentAudio]);

@@ -106,22 +106,25 @@ export default function SearchBar() {
     };
   }, []);
 
-  // Add keyboard shortcut for search (F key)
+  // Add keyboard shortcut for search (F key) - desktop only
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // If 'f' is pressed and no input or textarea is focused
-      if (event.key === 'f' &&
-          (document.activeElement?.tagName !== 'INPUT' &&
-          document.activeElement?.tagName !== 'TEXTAREA')) {
-        event.preventDefault();
-        (document.getElementById('search-input') as HTMLInputElement)?.focus();
-      }
+      // Only enable keyboard shortcuts on desktop (non-touch devices)
+      if (window.matchMedia('(hover: hover)').matches) {
+        // If 'f' is pressed and no input or textarea is focused
+        if (event.key === 'f' &&
+            (document.activeElement?.tagName !== 'INPUT' &&
+            document.activeElement?.tagName !== 'TEXTAREA')) {
+          event.preventDefault();
+          (document.getElementById('search-input') as HTMLInputElement)?.focus();
+        }
 
-      // If Escape is pressed while search input is focused, clear search
-      if (event.key === 'Escape' &&
-          document.activeElement?.id === 'search-input') {
-        handleClearSearch();
-        (document.getElementById('search-input') as HTMLInputElement)?.blur();
+        // If Escape is pressed while search input is focused, clear search
+        if (event.key === 'Escape' &&
+            document.activeElement?.id === 'search-input') {
+          handleClearSearch();
+          (document.getElementById('search-input') as HTMLInputElement)?.blur();
+        }
       }
     };
 
@@ -188,7 +191,7 @@ export default function SearchBar() {
   }, [error]);
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+    <div className="flex flex-col sm:flex-row gap-2 w-full">
       <form onSubmit={handleSubmit} className={`search-container relative flex-1 ${query ? 'active-search' : ''}`}>
         <label htmlFor="search-input" className="sr-only">
           Search songs, artists, or albums
@@ -196,19 +199,19 @@ export default function SearchBar() {
 
         {/* Search result count */}
         {showResultCount && query && !searchError && (
-          <div className="search-result-count absolute -top-8 left-0 right-0 text-center text-sm text-mauve animate-fade-in">
+          <div className="search-result-count absolute -top-6 sm:-top-8 left-0 right-0 text-center text-xs sm:text-sm text-mauve animate-fade-in">
             Found {pagination?.total ?? 0} {pagination?.total === 1 ? 'song' : 'songs'} matching "{query}"
           </div>
         )}
 
         {/* Search error message */}
         {searchError && (
-          <div className="search-error absolute -top-8 left-0 right-0 text-center text-sm text-love bg-love/10 py-1 px-2 rounded-md animate-fade-in flex items-center justify-center gap-2">
+          <div className="search-error absolute -top-6 sm:-top-8 left-0 right-0 text-center text-xs sm:text-sm text-love bg-love/10 py-1 px-2 rounded-md animate-fade-in flex items-center justify-center gap-2">
             <i className="fas fa-exclamation-circle"></i>
-            <span>{searchError}</span>
+            <span className="truncate">{searchError}</span>
             <button
               type="button"
-              className="text-mauve hover:text-lavender ml-2 font-medium"
+              className="text-mauve hover:text-lavender ml-2 font-medium whitespace-nowrap"
               onClick={() => {
                 setSearchError(null);
                 if (query) {
@@ -230,10 +233,10 @@ export default function SearchBar() {
           <input
             type="text"
             id="search-input"
-            className={`w-full pl-10 pr-10 py-2 bg-surface rounded-md border ${
+            className={`w-full pl-10 pr-10 py-2 sm:py-2.5 bg-surface rounded-md border text-sm sm:text-base ${
               query ? 'border-mauve' : 'border-overlay'
             } focus:outline-none focus:border-mauve focus:ring-1 focus:ring-mauve transition-colors`}
-            placeholder="Search songs, artists, or albums... (Press 'f' to focus)"
+            placeholder="Search songs, artists, or albums..."
             value={query}
             onChange={handleSearchChange}
             aria-label="Search songs, artists, or albums"
@@ -241,11 +244,11 @@ export default function SearchBar() {
           {query && (
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text p-1"
               onClick={handleClearSearch}
               aria-label="Clear search"
             >
-              <i className="fas fa-times"></i>
+              <i className="fas fa-times text-sm"></i>
             </button>
           )}
         </div>
@@ -254,7 +257,7 @@ export default function SearchBar() {
       <div className="sort-dropdown relative" ref={sortMenuRef}>
         <button
           id="sort-button"
-          className="sort-button flex items-center gap-2 px-3 py-2 bg-surface rounded-md border border-overlay hover:bg-overlay"
+          className="sort-button flex items-center gap-2 px-3 py-2 sm:py-2.5 bg-surface rounded-md border border-overlay hover:bg-overlay w-full sm:w-auto justify-center sm:justify-start text-sm sm:text-base"
           onClick={() => setShowSortMenu(!showSortMenu)}
           aria-expanded={showSortMenu}
           aria-haspopup="true"
@@ -262,15 +265,15 @@ export default function SearchBar() {
         >
           <i className="fas fa-sort"></i>
           <span className="hidden sm:inline">Sort</span>
-          <span className="text-xs text-muted">
+          <span className="text-xs sm:text-xs text-muted">
             {sortBy === 'artist' ? 'Artist' : sortBy === 'album' ? 'Album' : 'Title'}
           </span>
         </button>
 
         {showSortMenu && (
-          <div className="sort-menu absolute right-0 mt-1 w-36 bg-surface rounded-md shadow-lg border border-overlay z-10">
+          <div className="sort-menu absolute right-0 sm:right-0 left-0 sm:left-auto mt-1 w-full sm:w-36 bg-surface rounded-md shadow-lg border border-overlay z-20">
             <button
-              className={`sort-option w-full text-left px-4 py-2 hover:bg-overlay ${sortBy === 'artist' ? 'text-mauve' : ''}`}
+              className={`sort-option w-full text-left px-4 py-2 hover:bg-overlay text-sm ${sortBy === 'artist' ? 'text-mauve' : ''}`}
               onClick={() => {
                 changeSortOrder('artist');
                 setShowSortMenu(false);
@@ -279,7 +282,7 @@ export default function SearchBar() {
               By Artist
             </button>
             <button
-              className={`sort-option w-full text-left px-4 py-2 hover:bg-overlay ${sortBy === 'album' ? 'text-mauve' : ''}`}
+              className={`sort-option w-full text-left px-4 py-2 hover:bg-overlay text-sm ${sortBy === 'album' ? 'text-mauve' : ''}`}
               onClick={() => {
                 changeSortOrder('album');
                 setShowSortMenu(false);
@@ -288,7 +291,7 @@ export default function SearchBar() {
               By Album
             </button>
             <button
-              className={`sort-option w-full text-left px-4 py-2 hover:bg-overlay ${sortBy === 'title' ? 'text-mauve' : ''}`}
+              className={`sort-option w-full text-left px-4 py-2 hover:bg-overlay text-sm ${sortBy === 'title' ? 'text-mauve' : ''}`}
               onClick={() => {
                 changeSortOrder('title');
                 setShowSortMenu(false);

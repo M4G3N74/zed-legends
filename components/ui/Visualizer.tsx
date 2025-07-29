@@ -50,12 +50,20 @@ export default function Visualizer() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Resize canvas to match container
+    // Resize canvas to match container with device pixel ratio for crisp rendering
     const resizeCanvas = () => {
       const container = canvas.parentElement;
       if (container) {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = container.getBoundingClientRect();
+        
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        
+        ctx.scale(dpr, dpr);
       }
     };
 
@@ -219,7 +227,7 @@ export default function Visualizer() {
 
   return (
     <div 
-      className="visualizer-container w-full h-40 mb-4 relative group cursor-pointer"
+      className="visualizer-container w-full h-32 sm:h-36 md:h-40 mb-4 relative group cursor-pointer"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
@@ -228,13 +236,13 @@ export default function Visualizer() {
       
       {/* Interactive Controls */}
       {showControls && (
-        <div className="absolute top-2 right-2 bg-surface/90 backdrop-blur-sm rounded-lg p-3 space-y-2 border border-overlay/30">
+        <div className="absolute top-2 right-2 bg-surface/90 backdrop-blur-sm rounded-lg p-2 sm:p-3 space-y-2 border border-overlay/30 max-w-xs">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">Style:</span>
+            <span className="text-xs text-muted whitespace-nowrap">Style:</span>
             <select 
               value={visualizerStyle} 
               onChange={(e) => setVisualizerStyle(e.target.value as 'bars' | 'wave' | 'circle')}
-              className="text-xs bg-background border border-overlay rounded px-2 py-1"
+              className="text-xs bg-background border border-overlay rounded px-2 py-1 flex-1 min-w-0"
             >
               <option value="bars">Bars</option>
               <option value="wave">Wave</option>
@@ -243,11 +251,11 @@ export default function Visualizer() {
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">Color:</span>
+            <span className="text-xs text-muted whitespace-nowrap">Color:</span>
             <select 
               value={colorScheme} 
               onChange={(e) => setColorScheme(e.target.value as 'purple' | 'rainbow' | 'fire')}
-              className="text-xs bg-background border border-overlay rounded px-2 py-1"
+              className="text-xs bg-background border border-overlay rounded px-2 py-1 flex-1 min-w-0"
             >
               <option value="purple">Purple</option>
               <option value="rainbow">Rainbow</option>
@@ -256,7 +264,7 @@ export default function Visualizer() {
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">Intensity:</span>
+            <span className="text-xs text-muted whitespace-nowrap">Intensity:</span>
             <input 
               type="range" 
               min="0.5" 
@@ -264,14 +272,14 @@ export default function Visualizer() {
               step="0.1" 
               value={sensitivity}
               onChange={(e) => setSensitivity(parseFloat(e.target.value))}
-              className="w-16 h-1 bg-overlay rounded-lg appearance-none cursor-pointer"
+              className="flex-1 h-1 bg-overlay rounded-lg appearance-none cursor-pointer min-w-0"
             />
           </div>
         </div>
       )}
       
       {/* Interaction Hint */}
-      <div className="absolute bottom-2 left-2 text-xs text-muted/70 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute bottom-2 left-2 text-xs text-muted/70 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
         Move mouse to interact • Hover for controls
       </div>
     </div>

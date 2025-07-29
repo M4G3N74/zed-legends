@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { usePlayer, SimplePlayerContextType } from '../context/SimplePlayerContext';
+import QueueManager from '../features/QueueManager';
 
 interface RepeatToastProps {
   mode: string | null;
@@ -61,6 +62,7 @@ export default function NowPlayingBar({ isMobile }: NowPlayingBarProps) {
   const repeatToastTimeout = useRef<NodeJS.Timeout | null>(null);
   const [downloadToast, setDownloadToast] = useState<boolean>(false);
   const downloadToastTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [showQueue, setShowQueue] = useState<boolean>(false);
 
   // Format time in MM:SS
   const formatTime = (seconds: number): string => {
@@ -354,11 +356,19 @@ export default function NowPlayingBar({ isMobile }: NowPlayingBarProps) {
           <button onClick={playNextSong} className="p-2 text-muted hover:text-text">
             <i className="fas fa-step-forward"></i>
           </button>
+          <button onClick={() => setShowQueue(true)} className="p-2 text-muted hover:text-text">
+            <i className="fas fa-list"></i>
+          </button>
         </div>
       </div>
       
       <RepeatToast mode={repeatToast} onClose={() => setRepeatToast(null)} />
       <DownloadToast show={downloadToast} />
+      <QueueManager 
+        userId="temp-user-id" 
+        isVisible={showQueue} 
+        onClose={() => setShowQueue(false)} 
+      />
     </div>
   );
 }

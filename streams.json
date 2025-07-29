@@ -36,10 +36,10 @@
     "lastPlayed": "2025-07-28T14:24:35.814Z"
   },
   "01. A M B I T I O N.mp3": {
-    "count": 4,
+    "count": 6,
     "title": "01. A M B I T I O N",
     "artist": "01. A M B I T I O N",
-    "lastPlayed": "2025-07-29T07:00:21.641Z"
+    "lastPlayed": "2025-07-29T11:22:04.195Z"
   },
   "02 Natuwelele.mp3": {
     "count": 3,
@@ -70,5 +70,41 @@
     "title": " P K Chishala",
     "artist": "Wakangoti",
     "lastPlayed": "2025-07-28T15:13:19.107Z"
+  },
+  "02. B E T R A Y.mp3": {
+    "count": 2,
+    "title": "02. B E T R A Y",
+    "artist": "02. B E T R A Y",
+    "lastPlayed": "2025-07-29T11:07:58.748Z"
+  },
+  "02. 05 AM.mp3": {
+    "count": 1,
+    "title": "02. 05 AM",
+    "artist": "02. 05 AM",
+    "lastPlayed": "2025-07-29T10:09:28.304Z"
+  },
+  "02 Ten Wala - Amayenge.mp3": {
+    "count": 4,
+    "title": "Amayenge",
+    "artist": "02 Ten Wala",
+    "lastPlayed": "2025-07-29T11:07:33.705Z"
+  },
+  "01 Mao - Amayenge.mp3": {
+    "count": 1,
+    "title": "Amayenge",
+    "artist": "01 Mao",
+    "lastPlayed": "2025-07-29T10:11:38.806Z"
+  },
+  "03. C U L T.mp3": {
+    "count": 1,
+    "title": "03. C U L T",
+    "artist": "03. C U L T",
+    "lastPlayed": "2025-07-29T10:12:43.745Z"
+  },
+  "01 - Antanasio - Corner.mp3": {
+    "count": 3,
+    "title": "Antanasio",
+    "artist": "01",
+    "lastPlayed": "2025-07-29T11:31:08.677Z"
   }
 }

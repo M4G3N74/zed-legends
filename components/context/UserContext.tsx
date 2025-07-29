@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '../../lib/supabase';
 
@@ -23,6 +25,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function fetchUser() {
       try {
+        if (!supabase) {
+          setUser(null);
+          setRole(null);
+          setLoading(false);
+          return;
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error || !session) {
@@ -46,7 +55,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       } catch (err) {
         console.error('Auth error:', err);
-        await supabase.auth.signOut();
+        if (supabase) {
+          await supabase.auth.signOut();
+        }
         setUser(null);
         setRole(null);
         setLoading(false);
