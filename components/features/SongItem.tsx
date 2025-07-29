@@ -116,10 +116,18 @@ export default function SongItem({ song, isActive }: SongItemProps) {
               alt={song.title}
               className="w-full h-full object-cover"
               loading="lazy"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
             />
-          ) : (
-            <i className="fas fa-music text-muted text-sm sm:text-base"></i>
-          )}
+          ) : null}
+          <img
+            src="/images/logo.png"
+            alt={song.title}
+            className={`w-full h-full object-cover ${song.albumArt ? 'hidden' : ''}`}
+            loading="lazy"
+          />
           <div
             className={`absolute inset-0 flex items-center justify-center w-full h-full bg-black/50 transition-opacity ${
               isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'

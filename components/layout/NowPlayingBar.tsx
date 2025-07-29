@@ -169,19 +169,13 @@ export default function NowPlayingBar({ isMobile }: NowPlayingBarProps) {
           {/* Album art - large */}
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="w-full max-w-xs aspect-square rounded-lg overflow-hidden shadow-lg mx-auto">
-              {currentSong?.album_art ? (
-                <Image
-                  src={currentSong.album_art}
-                  alt={currentSong.title}
-                  width={192}
-                  height={192}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-surface flex items-center justify-center">
-                  <i className="fas fa-music text-5xl text-muted" aria-label="No album art"></i>
-                </div>
-              )}
+              <Image
+                src={currentSong?.album_art || '/images/logo.png'}
+                alt={currentSong?.title || 'Album art'}
+                width={192}
+                height={192}
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
@@ -286,19 +280,13 @@ export default function NowPlayingBar({ isMobile }: NowPlayingBarProps) {
             onTouchEnd={handleTouchEnd}
           >
             <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0">
-              {currentSong.album_art ? (
-                <Image
-                  src={currentSong.album_art}
-                  alt={currentSong.title}
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-background flex items-center justify-center">
-                  <i className="fas fa-music text-muted"></i>
-                </div>
-              )}
+              <Image
+                src={currentSong.album_art || '/images/logo.png'}
+                alt={currentSong.title}
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{currentSong.title}</div>
@@ -326,19 +314,13 @@ export default function NowPlayingBar({ isMobile }: NowPlayingBarProps) {
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-overlay p-4">
       <div className="max-w-7xl mx-auto flex items-center gap-4">
         <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
-          {currentSong.album_art ? (
-            <Image
-              src={currentSong.album_art}
-              alt={currentSong.title}
-              width={48}
-              height={48}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-background flex items-center justify-center">
-              <i className="fas fa-music text-muted"></i>
-            </div>
-          )}
+          <Image
+            src={currentSong.album_art || '/images/logo.png'}
+            alt={currentSong.title}
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+          />
         </div>
         
         <div className="flex-1 min-w-0">
