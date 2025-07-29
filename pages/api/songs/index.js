@@ -81,17 +81,42 @@ export default async function handler(req, res) {
 
     // Filter by search if provided
     let filteredSongs = allSongs;
-    if (search && search.length >= 2) {
-      const searchLower = search.toLowerCase();
+    if (search && search.trim().length > 0) {
+      const searchLower = search.toLowerCase().trim();
       filteredSongs = allSongs.filter(song => 
-        song.title.toLowerCase().includes(searchLower) ||
-        song.artist.toLowerCase().includes(searchLower) ||
-        song.album.toLowerCase().includes(searchLower)
+        (song.title || '').toLowerCase().includes(searchLower) ||
+        (song.artist || '').toLowerCase().includes(searchLower) ||
+        (song.album || '').toLowerCase().includes(searchLower)
       );
     }
 
     // Sort songs
-    filteredSongs.sort((a, b) => a.title.localeCompare(b.title));
+    const sortBy = req.query.sortBy || 'title';
+    const [sortField, sortOrder] = sortBy.split(':');
+    const isAscending = sortOrder !== '-1';
+    
+    filteredSongs.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortField) {
+        case 'artist':
+          aValue = a.artist || '';
+          bValue = b.artist || '';
+          break;
+        case 'album':
+          aValue = a.album || '';
+          bValue = b.album || '';
+          break;
+        case 'title':
+        default:
+          aValue = a.title || '';
+          bValue = b.title || '';
+          break;
+      }
+      
+      const comparison = aValue.localeCompare(bValue);
+      return isAscending ? comparison : -comparison;
+    });
 
     // Paginate
     const from = (page - 1) * pageSize;
