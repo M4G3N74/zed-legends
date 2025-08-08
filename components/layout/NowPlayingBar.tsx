@@ -220,13 +220,13 @@ export default function NowPlayingBar({ isMobile }: NowPlayingBarProps) {
             >
               <i className="fas fa-heart"></i>
             </button>
-            <button
+            {/* <button
               className="p-2 text-lg text-muted hover:text-text"
               aria-label="Download song"
               onClick={handleDownload}
             >
               <i className="fas fa-download"></i>
-            </button>
+            </button> */}
             <button
               className="text-2xl text-muted hover:text-text"
               aria-label="Previous song"

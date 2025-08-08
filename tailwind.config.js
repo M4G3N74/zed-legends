@@ -22,7 +22,30 @@ module.exports = {
         sapphire: '#74c7ec',
         blue: '#89b4fa',
         lavender: '#b4befe',
-        mauve: '#cba6f7',
+        mauve: '#CD7F32',
+        
+        // Zambian National Colors
+        zambia: {
+          green: '#228B22',      // Zambia's natural resources
+          copper: '#CD7F32',     // Zambia's copper wealth
+          freedom: '#DC143C',    // Zambia's struggle for freedom
+          darkGreen: '#006400',  // Dark green for backgrounds
+          warmOrange: '#FF8C00', // Warm orange for highlights
+          flag: {
+            green: '#009739',    // Official flag green
+            red: '#CE1126',      // Official flag red
+            black: '#000000',    // Official flag black
+            orange: '#FCD116',   // Official flag orange
+          }
+        },
+        
+        // Zambian-inspired gradients
+        zambiaGradients: {
+          greenToCopper: 'linear-gradient(135deg, #228B22 0%, #CD7F32 100%)',
+          freedomToOrange: 'linear-gradient(135deg, #DC143C 0%, #FF8C00 100%)',
+          flagColors: 'linear-gradient(135deg, #009739 0%, #CE1126 50%, #FCD116 100%)',
+          nature: 'linear-gradient(135deg, #006400 0%, #228B22 50%, #CD7F32 100%)',
+        }
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

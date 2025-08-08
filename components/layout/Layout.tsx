@@ -40,7 +40,7 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main content */}
       <main className={`flex-1 overflow-y-auto ${
-        isMobile ? 'pb-32 pt-8' : 'ml-48 lg:ml-64 pb-20 pt-8'
+        isMobile ? 'pb-32 pt-12' : 'ml-48 lg:ml-64 pb-20 pt-12'
       }`}>
         {children}
       </main>

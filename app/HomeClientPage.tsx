@@ -8,26 +8,7 @@ import ClientOnly from '../components/ClientOnly';
 
 import React, { useState, useEffect } from 'react';
 
-function BetaBanner() {
-  return (
-    <div className="fixed top-0 left-0 w-full z-50 bg-mauve text-background py-1 sm:py-2 overflow-hidden shadow-lg">
-      <div className="whitespace-nowrap animate-marquee font-bold text-center text-sm sm:text-base lg:text-lg">
-        This site is in beta testing. Please report any issues you find.
-      </div>
-      <style jsx global>{`
-        @keyframes marquee {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        .animate-marquee {
-          display: inline-block;
-          min-width: 100vw;
-          animation: marquee 60s linear infinite;
-        }
-      `}</style>
-    </div>
-  );
-}
+
 
 export default function HomeClientPage() {
   const { isLoading, error } = useLibrary();
@@ -42,9 +23,7 @@ export default function HomeClientPage() {
   }
 
   return (
-    <>
-      <BetaBanner />
-      <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto space-y-6 sm:space-y-8">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Hero Section */}
         <div className="relative overflow-hidden bg-gradient-to-br from-mauve/10 via-lavender/5 to-blue/10 rounded-2xl sm:rounded-3xl border border-overlay/20 backdrop-blur-xl">
           <div className="absolute inset-0 bg-gradient-to-r from-mauve/5 to-transparent"></div>
@@ -112,6 +91,5 @@ export default function HomeClientPage() {
           </div>
         </div>
       </div>
-    </>
-  );
+    );
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 const messages: string[] = [
@@ -30,6 +32,6 @@ const BetaBanner: React.FC = () => {
       `}</style>
     </div>
   );
-};
+}
 
 export default BetaBanner;
