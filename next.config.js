@@ -4,7 +4,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  
+
   // Security headers
   async headers() {
     return [
@@ -13,28 +13,23 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'DENY'
+            value: 'DENY',
           },
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            value: 'nosniff',
           },
           {
             key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin'
+            value: 'strict-origin-when-cross-origin',
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()'
-          }
-        ]
-      }
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
     ];
-  },
-
-  // Environment variables validation
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
 
   // Image optimization security
@@ -46,14 +41,15 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'pub-*.r2.dev',
+        port: '',
+        pathname: '/**',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
-  },
-  
-  // Add voice-cache to public folder
-  publicRuntimeConfig: {
-    voiceCachePath: '/voice-cache',
   },
 
   // Disable x-powered-by header
@@ -62,15 +58,10 @@ const nextConfig = {
   // Compression
   compress: true,
 
-  // Experimental features
-  experimental: {
-    // Enable strict mode for better security
-    strictNextHead: true,
+  // Turbopack config
+  turbopack: {
+    root: process.cwd(),
   },
-  
-  eslint: {
-    ignoreDuringBuilds: true,
-  }
 };
 
 module.exports = nextConfig;
