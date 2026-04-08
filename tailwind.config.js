@@ -1,81 +1,95 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Catppuccin Mocha color palette
-        background: '#1e1e2e',
-        surface: '#313244',
-        overlay: '#6c7086',
-        muted: '#9399b2',
-        text: '#cdd6f4',
-        love: '#f38ba8',
-        gold: '#f9e2af',
-        peach: '#fab387',
-        green: '#a6e3a1',
-        teal: '#94e2d5',
-        sky: '#89dceb',
-        sapphire: '#74c7ec',
-        blue: '#89b4fa',
-        lavender: '#b4befe',
-        mauve: '#CD7F32',
-        
-        // Zambian National Colors
-        zambia: {
-          green: '#228B22',      // Zambia's natural resources
-          copper: '#CD7F32',     // Zambia's copper wealth
-          freedom: '#DC143C',    // Zambia's struggle for freedom
-          darkGreen: '#006400',  // Dark green for backgrounds
-          warmOrange: '#FF8C00', // Warm orange for highlights
-          flag: {
-            green: '#009739',    // Official flag green
-            red: '#CE1126',      // Official flag red
-            black: '#000000',    // Official flag black
-            orange: '#FCD116',   // Official flag orange
-          }
-        },
-        
-        // Zambian-inspired gradients
-        zambiaGradients: {
-          greenToCopper: 'linear-gradient(135deg, #228B22 0%, #CD7F32 100%)',
-          freedomToOrange: 'linear-gradient(135deg, #DC143C 0%, #FF8C00 100%)',
-          flagColors: 'linear-gradient(135deg, #009739 0%, #CE1126 50%, #FCD116 100%)',
-          nature: 'linear-gradient(135deg, #006400 0%, #228B22 50%, #CD7F32 100%)',
-        }
+        bg: '#0a0a0f',
+        surface: '#151520',
+        'surface-hover': '#1f1f2e',
+        border: '#2a2a3a',
+        text: '#ffffff',
+        muted: '#888899',
+        accent: '#f59e0b',
+        'accent-glow': '#fbbf24',
+        love: '#ef4444',
+        success: '#22c55e',
+        copper: '#CD7F32',
+        'copper-glow': 'rgba(205, 127, 50, 0.3)',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
-      screens: {
-        'xs': '480px',
-        'sm': '640px',
-        'md': '768px',
-        'lg': '1024px',
-        'xl': '1280px',
-        '2xl': '1536px',
+      fontSize: {
+        '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+      },
+      spacing: {
+        'safe-bottom': 'env(safe-area-inset-bottom)',
+        'safe-top': 'env(safe-area-inset-top)',
+      },
+      borderRadius: {
+        sm: '8px',
+        md: '12px',
+        lg: '16px',
+        xl: '24px',
+      },
+      boxShadow: {
+        glow: '0 0 20px rgba(245, 158, 11, 0.3)',
+        'glow-lg': '0 0 40px rgba(245, 158, 11, 0.4)',
+        'glow-copper': '0 0 20px rgba(205, 127, 50, 0.3)',
+        card: '0 4px 20px rgba(0, 0, 0, 0.4)',
+        inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.3)',
       },
       animation: {
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'fade-in': 'fadeIn 0.3s ease-in-out',
-        'fade-out': 'fadeOut 0.3s ease-in-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'fade-in': 'fadeIn 0.2s ease-out',
+        'fade-up': 'fadeUp 0.3s ease-out',
+        'scale-in': 'scaleIn 0.2s ease-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'slide-down': 'slideDown 0.3s ease-out',
+        shimmer: 'shimmer 2s infinite',
+        bounce: 'bounce 0.5s ease-out',
       },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: 0, transform: 'translateY(-10px)' },
-          '100%': { opacity: 1, transform: 'translateY(0)' },
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
-        fadeOut: {
-          '0%': { opacity: 1, transform: 'translateY(0)' },
-          '100%': { opacity: 0, transform: 'translateY(-10px)' },
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        bounce: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
+      transitionDuration: {
+        150: '150ms',
+        250: '250ms',
       },
     },
   },
   plugins: [],
   darkMode: 'class',
-}
+};

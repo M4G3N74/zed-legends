@@ -6,10 +6,10 @@
     "lastPlayed": "2025-07-28T14:03:12.136Z"
   },
   "02 Taonga.mp3": {
-    "count": 1,
+    "count": 2,
     "title": "02 Taonga",
     "artist": "02 Taonga",
-    "lastPlayed": "2025-07-28T14:03:36.151Z"
+    "lastPlayed": "2025-07-31T11:45:29.513Z"
   },
   "09.D E M O N S.mp3": {
     "count": 3,
@@ -36,10 +36,10 @@
     "lastPlayed": "2025-07-28T14:24:35.814Z"
   },
   "01. A M B I T I O N.mp3": {
-    "count": 6,
+    "count": 9,
     "title": "01. A M B I T I O N",
     "artist": "01. A M B I T I O N",
-    "lastPlayed": "2025-07-29T11:22:04.195Z"
+    "lastPlayed": "2025-08-08T09:39:16.741Z"
   },
   "02 Natuwelele.mp3": {
     "count": 3,
@@ -102,9 +102,27 @@
     "lastPlayed": "2025-07-29T10:12:43.745Z"
   },
   "01 - Antanasio - Corner.mp3": {
-    "count": 3,
+    "count": 4,
     "title": "Antanasio",
     "artist": "01",
-    "lastPlayed": "2025-07-29T11:31:08.677Z"
+    "lastPlayed": "2025-07-31T11:43:06.378Z"
+  },
+  "06. L I M B O.mp3": {
+    "count": 1,
+    "title": "06. L I M B O",
+    "artist": "06. L I M B O",
+    "lastPlayed": "2025-08-08T09:25:14.190Z"
+  },
+  "01. Ilyashi Ilikaya.mp3": {
+    "count": 1,
+    "title": "01. Ilyashi Ilikaya",
+    "artist": "01. Ilyashi Ilikaya",
+    "lastPlayed": "2025-08-08T09:41:41.882Z"
+  },
+  "01. katharsis.mp3": {
+    "count": 1,
+    "title": "01. katharsis",
+    "artist": "01. katharsis",
+    "lastPlayed": "2025-08-24T08:25:54.905Z"
   }
 }

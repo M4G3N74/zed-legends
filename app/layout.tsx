@@ -1,12 +1,14 @@
-import '../styles/globals.css';
-import '../styles/frosted-glass.css';
-import { Providers } from './providers';
-import BetaBanner from '../components/ui/BetaBanner';
+import './styles/v2.css';
 import type { Metadata } from 'next';
+import { PlayerProvider, PlayerLayout } from './components/player';
+import { BottomNav } from './components/layout';
 
 export const metadata: Metadata = {
-  title: 'Zed Legends',
-  description: 'A music streaming application with auto-play functionality',
+  title: 'Zed Legends | Music Streaming',
+  description: 'Bold. Creative. Zambian. Experience music like never before.',
+  icons: {
+    icon: '/images/logo.png',
+  },
 };
 
 export default function RootLayout({
@@ -17,14 +19,29 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <link rel="icon" href="/images/logo.png" />
-        <link rel="apple-touch-icon" href="/images/logo.png" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body>
-        <BetaBanner />
-        <Providers>{children}</Providers>
+      <body className="dark bg-bg text-text antialiased">
+        <PlayerProvider>
+          <div className="min-h-screen">
+            <main className="pb-32">{children}</main>
+            <PlayerLayout />
+            <BottomNav />
+          </div>
+        </PlayerProvider>
       </body>
     </html>
   );
