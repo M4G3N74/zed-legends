@@ -1,7 +1,13 @@
 'use client';
 
 import { usePlayer } from './player-context';
-import { PlayIcon, PauseIcon, SkipBackIcon, SkipForwardIcon } from '../icons';
+import {
+  PlayIcon,
+  PauseIcon,
+  SkipBackIcon,
+  SkipForwardIcon,
+  QueueIcon,
+} from '../icons';
 import { IconButton } from '../ui';
 import { AlbumArt } from '../ui';
 
@@ -14,11 +20,20 @@ function formatTime(seconds: number): string {
 
 interface PlayerBarProps {
   onOpenFullPlayer?: () => void;
+  onOpenQueue?: () => void;
 }
 
-export function PlayerBar({ onOpenFullPlayer }: PlayerBarProps) {
-  const { currentSong, isPlaying, toggle, progress, duration, previous, next } =
-    usePlayer();
+export function PlayerBar({ onOpenFullPlayer, onOpenQueue }: PlayerBarProps) {
+  const {
+    currentSong,
+    isPlaying,
+    toggle,
+    progress,
+    duration,
+    previous,
+    next,
+    queue,
+  } = usePlayer();
 
   if (!currentSong) return null;
 
@@ -64,6 +79,18 @@ export function PlayerBar({ onOpenFullPlayer }: PlayerBarProps) {
           <IconButton label="Next" onClick={next}>
             <SkipForwardIcon size={20} />
           </IconButton>
+          {onOpenQueue && (
+            <IconButton label="Queue" onClick={onOpenQueue}>
+              <div className="relative">
+                <QueueIcon size={20} />
+                {queue.length > 1 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 text-2xs bg-accent text-bg rounded-full flex items-center justify-center font-bold">
+                    {queue.length > 9 ? '9+' : queue.length}
+                  </span>
+                )}
+              </div>
+            </IconButton>
+          )}
         </div>
       </div>
 

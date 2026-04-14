@@ -17,10 +17,12 @@ import {
   QueueIcon,
 } from '../icons';
 import { AlbumArt } from '../ui';
+import { useFavorites, useToggleFavorite } from '@/lib/hooks';
 
 interface FullPlayerProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenQueue?: () => void;
 }
 
 function formatTime(seconds: number): string {
@@ -30,7 +32,7 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function FullPlayer({ isOpen, onClose }: FullPlayerProps) {
+export function FullPlayer({ isOpen, onClose, onOpenQueue }: FullPlayerProps) {
   const {
     currentSong,
     isPlaying,
@@ -48,11 +50,29 @@ export function FullPlayer({ isOpen, onClose }: FullPlayerProps) {
     toggleRepeat,
   } = usePlayer();
 
+  const { data: favorites = [] } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
+
+  const isLiked = currentSong
+    ? favorites.some((f) => f.song_id === currentSong.id)
+    : false;
+
   const [isDragging, setIsDragging] = useState(false);
   const [dragProgress, setDragProgress] = useState(0);
   const [localVolume, setLocalVolume] = useState(volume);
-  const [isLiked, setIsLiked] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
+
+  const handleToggleLike = () => {
+    if (currentSong) {
+      toggleFavorite.mutate({
+        id: currentSong.id,
+        title: currentSong.title,
+        artist: currentSong.artist,
+        url: currentSong.audioUrl,
+        path: currentSong.path,
+      });
+    }
+  };
 
   useEffect(() => {
     if (!isDragging) {
@@ -234,7 +254,7 @@ export function FullPlayer({ isOpen, onClose }: FullPlayerProps) {
 
           <div className="flex items-center gap-8">
             <button
-              onClick={() => setIsLiked(!isLiked)}
+              onClick={handleToggleLike}
               className={`p-2 transition-colors ${isLiked ? 'text-love' : 'text-muted hover:text-love'}`}
             >
               {isLiked ? (
@@ -243,7 +263,10 @@ export function FullPlayer({ isOpen, onClose }: FullPlayerProps) {
                 <HeartOutlineIcon size={24} />
               )}
             </button>
-            <button className="p-2 text-muted hover:text-text transition-colors">
+            <button
+              onClick={onOpenQueue}
+              className="p-2 text-muted hover:text-text transition-colors"
+            >
               <QueueIcon size={24} />
             </button>
           </div>

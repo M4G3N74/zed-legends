@@ -8,6 +8,7 @@ interface HeaderProps {
   showSearch?: boolean;
   onSearchClick?: () => void;
   rightContent?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function Header({
@@ -15,17 +16,23 @@ export function Header({
   showSearch = false,
   onSearchClick,
   rightContent,
+  children,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-10 glass-subtle border-b border-border safe-top">
       <div className="flex items-center justify-between h-14 px-4">
-        {title ? (
-          <h1 className="text-lg font-semibold gradient-text">{title}</h1>
-        ) : (
-          <Link href="/v2" className="text-xl font-bold gradient-text">
-            Zed Legends
-          </Link>
-        )}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {title ? (
+            <h1 className="text-lg font-semibold gradient-text truncate">
+              {title}
+            </h1>
+          ) : (
+            <Link href="/" className="text-xl font-bold gradient-text">
+              Zed Legends
+            </Link>
+          )}
+          {children}
+        </div>
 
         <div className="flex items-center gap-2">
           {showSearch && (

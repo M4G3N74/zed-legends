@@ -9,6 +9,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
+import { history } from '@/lib/db';
 
 interface Song {
   id: string;
@@ -44,6 +45,7 @@ interface PlayerContextValue {
   clearQueue: () => void;
   playNext: (song: Song) => void;
   playAll: (songs: Song[], startIndex?: number) => void;
+  moveInQueue: (fromIndex: number, toIndex: number) => void;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -72,16 +74,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (repeatMode === 'one' && audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play();
-    } else if (queueIndex < queue.length - 1) {
-      setQueueIndex((prev) => prev + 1);
-      setCurrentSong(queue[queueIndex + 1]);
+    } else if (queueIndex + 1 < queue.length) {
+      const nextIndex = queueIndex + 1;
+      setQueueIndex(nextIndex);
+      setCurrentSong(queue[nextIndex]);
     } else if (repeatMode === 'all' && queue.length > 0) {
       setQueueIndex(0);
       setCurrentSong(queue[0]);
     } else {
       setIsPlaying(false);
     }
-  }, [repeatMode, queueIndex, queue]);
+  }, [repeatMode, queue, queueIndex]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -119,6 +122,16 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       if (isPlaying) {
         audioRef.current.play().catch(() => setIsPlaying(false));
       }
+
+      history
+        .add({
+          id: currentSong.id,
+          title: currentSong.title,
+          artist: currentSong.artist,
+          url: currentSong.audioUrl,
+          path: currentSong.path,
+        })
+        .catch(console.error);
     }
   }, [currentSong]);
 
@@ -157,30 +170,27 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const toggle = useCallback(() => setIsPlaying((p) => !p), []);
 
   const next = useCallback(() => {
-    setQueueIndex((currentIndex) => {
-      const newIndex = currentIndex + 1;
-      if (newIndex < queue.length) {
-        setCurrentSong(queue[newIndex]);
-        return newIndex;
-      }
-      return currentIndex;
-    });
-  }, [queue]);
+    const nextIndex = queueIndex + 1;
+    if (nextIndex < queue.length) {
+      setQueueIndex(nextIndex);
+      setCurrentSong(queue[nextIndex]);
+    } else if (repeatMode === 'all' && queue.length > 0) {
+      setQueueIndex(0);
+      setCurrentSong(queue[0]);
+    } else {
+      setIsPlaying(false);
+    }
+  }, [queue, queueIndex, repeatMode]);
 
   const previous = useCallback(() => {
     if (progress > 3 && audioRef.current) {
       audioRef.current.currentTime = 0;
-    } else {
-      setQueueIndex((currentIndex) => {
-        const newIndex = currentIndex - 1;
-        if (newIndex >= 0) {
-          setCurrentSong(queue[newIndex]);
-          return newIndex;
-        }
-        return currentIndex;
-      });
+    } else if (queueIndex > 0) {
+      const prevIndex = queueIndex - 1;
+      setQueueIndex(prevIndex);
+      setCurrentSong(queue[prevIndex]);
     }
-  }, [progress, queue]);
+  }, [progress, queue, queueIndex]);
 
   const seek = useCallback((time: number) => {
     if (audioRef.current) {
@@ -241,6 +251,21 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setIsPlaying(true);
   }, []);
 
+  const moveInQueue = useCallback((fromIndex: number, toIndex: number) => {
+    setQueue((prev) => {
+      const newQueue = [...prev];
+      const [removed] = newQueue.splice(fromIndex, 1);
+      newQueue.splice(toIndex, 0, removed);
+      return newQueue;
+    });
+    setQueueIndex((current) => {
+      if (current === fromIndex) return toIndex;
+      if (fromIndex < current && toIndex >= current) return current - 1;
+      if (fromIndex > current && toIndex <= current) return current + 1;
+      return current;
+    });
+  }, []);
+
   const value: PlayerContextValue = {
     currentSong,
     isPlaying,
@@ -265,6 +290,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     clearQueue,
     playNext,
     playAll,
+    moveInQueue,
   };
 
   return (

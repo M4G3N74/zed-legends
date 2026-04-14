@@ -1,29 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Header } from './components/layout';
-import { Card, CardContent, AlbumArt } from './components/ui';
+import { AlbumArt } from './components/ui';
 import {
   PlayIcon,
   HeartOutlineIcon,
+  HeartIcon,
   MusicIcon,
   ClockIcon,
   ShuffleIcon,
+  MoreIcon,
 } from './components/icons';
 import { usePlayer } from './components/player';
 import { fetchSongs, Song } from '../lib/api';
+import { useFavorites, useToggleFavorite } from '../lib/hooks';
 
 export default function HomePage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
-  const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
-  const { play, currentSong, isPlaying, toggle } = usePlayer();
+  const [showMenuFor, setShowMenuFor] = useState<string | null>(null);
+  const { play, currentSong, isPlaying, toggle, playAll } = usePlayer();
+  const { data: favorites = [] } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
+
+  const likedSongIds = new Set(favorites.map((f) => f.song_id));
 
   useEffect(() => {
     async function loadSongs() {
       try {
-        const data = await fetchSongs({ limit: 16 });
+        const data = await fetchSongs({ limit: 50 });
         setSongs(data.songs);
       } catch (error) {
         console.error('Failed to load songs:', error);
@@ -34,14 +41,27 @@ export default function HomePage() {
     loadSongs();
   }, []);
 
-  const toggleLike = (id: string) => {
-    setLikedSongs((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const shuffleArray = useMemo(
+    () =>
+      <T,>(array: T[]): T[] => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      },
+    []
+  );
+
+  const featuredSongs = useMemo(
+    () => shuffleArray(songs).slice(0, 8),
+    [songs, shuffleArray]
+  );
+  const recentSongs = useMemo(
+    () => shuffleArray(songs).slice(0, 10),
+    [songs, shuffleArray]
+  );
 
   const handlePlaySong = (song: Song) => {
     play({
@@ -54,18 +74,41 @@ export default function HomePage() {
   };
 
   const handlePlayAll = () => {
-    if (songs.length > 0) handlePlaySong(songs[0]);
+    if (songs.length > 0) {
+      const songList = songs.map((s) => ({
+        id: s.id,
+        title: s.title,
+        artist: s.artist,
+        audioUrl: s.url,
+        path: s.path,
+      }));
+      playAll(songList, 0);
+    }
   };
 
-  const featuredSongs = songs.slice(0, 8);
-  const recentSongs = songs.slice(0, 10);
+  const handleShuffle = () => {
+    if (songs.length > 0) {
+      const songList = songs.map((s) => ({
+        id: s.id,
+        title: s.title,
+        artist: s.artist,
+        audioUrl: s.url,
+        path: s.path,
+      }));
+      const shuffled = [...songList].sort(() => Math.random() - 0.5);
+      playAll(shuffled, 0);
+    }
+  };
+
+  const handleToggleLike = (song: Song) => {
+    toggleFavorite.mutate(song);
+  };
 
   return (
     <div className="min-h-screen">
       <Header title="Zed Legends" />
 
       <div className="px-4 pb-8 space-y-8 max-w-7xl mx-auto">
-        {/* Hero Section - Glass Effect */}
         <section className="relative overflow-hidden rounded-2xl glass">
           <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-transparent to-copper/20" />
           <div className="relative p-6 md:p-8">
@@ -87,7 +130,7 @@ export default function HomePage() {
                   <span className="hidden sm:inline">Play All</span>
                 </button>
                 <button
-                  onClick={handlePlayAll}
+                  onClick={handleShuffle}
                   className="flex items-center gap-2 px-5 py-2.5 glass border border-white/10 text-text font-medium rounded-full hover:bg-white/10 transition-colors"
                 >
                   <ShuffleIcon size={18} />
@@ -98,7 +141,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Songs - Responsive Grid */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Featured</h3>
@@ -111,77 +153,14 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="bg-surface/50 rounded-xl p-3 animate-pulse"
+                  className="flex-shrink-0 w-72 glass rounded-xl p-4 animate-pulse"
                 >
-                  <div className="aspect-square bg-surface-hover rounded-lg mb-3" />
-                  <div className="h-3 bg-surface-hover rounded w-3/4 mb-2" />
-                  <div className="h-2 bg-surface-hover rounded w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-              {featuredSongs.map((song, i) => (
-                <div
-                  key={song.id}
-                  className="group relative bg-surface/50 backdrop-blur-sm rounded-xl p-3 hover:bg-surface transition-all duration-300 cursor-pointer"
-                  onClick={() => handlePlaySong(song)}
-                >
-                  <div className="relative mb-3">
-                    <AlbumArt
-                      title={song.title}
-                      artist={song.artist}
-                      size="lg"
-                      rounded="lg"
-                      className="w-full aspect-square shadow-lg"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="w-12 h-12 rounded-full bg-accent text-bg flex items-center justify-center shadow-lg shadow-accent/40 transform scale-90 group-hover:scale-100 transition-transform">
-                        {currentSong?.id === song.id && isPlaying ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggle();
-                            }}
-                          >
-                            <PauseIcon size={22} />
-                          </button>
-                        ) : (
-                          <PlayIcon size={22} className="ml-1" />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="font-medium text-sm truncate">{song.title}</p>
-                  <p className="text-xs text-muted truncate">{song.artist}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Quick Picks - Horizontal Scroll */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <ClockIcon size={18} className="text-accent" />
-              Quick Picks
-            </h3>
-          </div>
-
-          {loading ? (
-            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-64 bg-surface/50 rounded-xl p-3 animate-pulse"
-                >
-                  <div className="flex gap-3">
-                    <div className="w-14 h-14 bg-surface-hover rounded-lg flex-shrink-0" />
+                  <div className="flex gap-4 items-center">
+                    <div className="w-16 h-16 bg-surface-hover rounded-lg flex-shrink-0" />
                     <div className="flex-1">
                       <div className="h-4 bg-surface-hover rounded w-3/4 mb-2" />
                       <div className="h-3 bg-surface-hover rounded w-1/2" />
@@ -192,22 +171,38 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-              {recentSongs.map((song) => (
+              {featuredSongs.map((song, i) => (
                 <div
                   key={song.id}
-                  className="flex-shrink-0 w-64 glass rounded-xl p-3 hover:bg-surface-hover/80 transition-colors cursor-pointer group"
-                  onClick={() => handlePlaySong(song)}
+                  className="flex-shrink-0 w-72 glass rounded-xl p-4 hover:bg-surface-hover/80 transition-colors cursor-pointer animate-fade-up"
+                  style={{ animationDelay: `${i * 30}ms` }}
                 >
-                  <div className="flex gap-3 items-center">
-                    <AlbumArt
-                      title={song.title}
-                      artist={song.artist}
-                      size="md"
-                      rounded="lg"
-                    />
+                  <div className="flex gap-4 items-center">
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
+                      <AlbumArt
+                        title={song.title}
+                        artist={song.artist}
+                        size="lg"
+                        rounded="lg"
+                        className="w-full h-full"
+                      />
+                      <div
+                        className="absolute inset-0 z-10 flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlaySong(song);
+                        }}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-accent/90 text-bg flex items-center justify-center">
+                          <PlayIcon size={14} className="ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`font-medium text-sm truncate ${currentSong?.id === song.id ? 'text-accent' : ''}`}
+                        className={`font-medium text-sm truncate ${
+                          currentSong?.id === song.id ? 'text-accent' : ''
+                        }`}
                       >
                         {song.title}
                       </p>
@@ -218,11 +213,15 @@ export default function HomePage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleLike(song.id);
+                        handleToggleLike(song);
                       }}
-                      className={`p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${likedSongs.has(song.id) ? 'text-love' : 'text-muted hover:text-love'}`}
+                      className="p-2 text-muted hover:text-love"
                     >
-                      <HeartOutlineIcon size={18} />
+                      {likedSongIds.has(song.id) ? (
+                        <HeartIcon size={20} />
+                      ) : (
+                        <HeartOutlineIcon size={20} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -231,20 +230,105 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* Quick Actions */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <ClockIcon size={18} className="text-accent" />
+              Quick Picks
+            </h3>
+          </div>
+
+          {loading ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-72 glass rounded-xl p-4 animate-pulse"
+                >
+                  <div className="flex gap-4 items-center">
+                    <div className="w-16 h-16 bg-surface-hover rounded-lg flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="h-4 bg-surface-hover rounded w-3/4 mb-2" />
+                      <div className="h-3 bg-surface-hover rounded w-1/2" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+              {recentSongs.map((song, i) => (
+                <div
+                  key={song.id}
+                  className="flex-shrink-0 w-72 glass rounded-xl p-4 hover:bg-surface-hover/80 transition-colors cursor-pointer animate-fade-up"
+                  style={{ animationDelay: `${i * 30}ms` }}
+                >
+                  <div className="flex gap-4 items-center">
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
+                      <AlbumArt
+                        title={song.title}
+                        artist={song.artist}
+                        size="lg"
+                        rounded="lg"
+                        className="w-full h-full"
+                      />
+                      <div
+                        className="absolute inset-0 z-10 flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlaySong(song);
+                        }}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-accent/90 text-bg flex items-center justify-center">
+                          <PlayIcon size={14} className="ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`font-medium text-sm truncate ${
+                          currentSong?.id === song.id ? 'text-accent' : ''
+                        }`}
+                      >
+                        {song.title}
+                      </p>
+                      <p className="text-xs text-muted truncate">
+                        {song.artist}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleLike(song);
+                      }}
+                      className="p-2 text-muted hover:text-love"
+                    >
+                      {likedSongIds.has(song.id) ? (
+                        <HeartIcon size={20} />
+                      ) : (
+                        <HeartOutlineIcon size={20} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         <section>
           <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Link
-              href="/library?tab=favorites"
+              href="/favorites"
               className="flex items-center gap-3 p-4 glass rounded-xl hover:bg-surface-hover/80 transition-colors"
             >
               <div className="w-12 h-12 rounded-xl bg-love/20 backdrop-blur-sm flex items-center justify-center">
-                <HeartOutlineIcon size={24} className="text-love" />
+                <HeartIcon size={24} className="text-love" />
               </div>
               <div>
                 <p className="font-medium text-sm">Favorites</p>
-                <p className="text-xs text-muted">{likedSongs.size} songs</p>
+                <p className="text-xs text-muted">{favorites.length} songs</p>
               </div>
             </Link>
             <Link
@@ -272,7 +356,7 @@ export default function HomePage() {
               </div>
             </Link>
             <Link
-              href="/library?tab=playlists"
+              href="/playlists"
               className="flex items-center gap-3 p-4 glass rounded-xl hover:bg-surface-hover/80 transition-colors"
             >
               <div className="w-12 h-12 rounded-xl bg-success/20 backdrop-blur-sm flex items-center justify-center">
