@@ -187,10 +187,12 @@ export async function GET(request: NextRequest) {
     let filteredSongs = allSongs;
 
     if (search) {
+      const searchLower = search.toLowerCase();
       filteredSongs = allSongs.filter(
         (song) =>
-          song.title.toLowerCase().includes(search) ||
-          song.artist.toLowerCase().includes(search)
+          song.title.toLowerCase().includes(searchLower) ||
+          song.artist.toLowerCase().includes(searchLower) ||
+          song.album.toLowerCase().includes(searchLower)
       );
     }
 
