@@ -74,9 +74,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: data.error };
       }
 
-      const { user: userData } = data;
+      const { user: userData, session } = data;
       setUser(userData);
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
+      if (session) {
+        localStorage.setItem(TOKEN_KEY, session.access_token);
+      }
 
       return { success: true };
     } catch {
@@ -99,9 +102,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { success: false, error: data.error };
         }
 
-        const { user: userData } = data;
+        const { user: userData, session } = data;
         setUser(userData);
         localStorage.setItem(USER_KEY, JSON.stringify(userData));
+        if (session) {
+          localStorage.setItem(TOKEN_KEY, session.access_token);
+        }
 
         return { success: true };
       } catch {
