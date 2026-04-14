@@ -1,35 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  password: string;
-  createdAt: string;
-}
-
-interface UserFile {
-  users: User[];
-  userData: Record<string, any>;
-}
-
-async function getUserFile(): Promise<UserFile> {
-  try {
-    const data = await fs.readFile(USERS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return { users: [], userData: {} };
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return null;
   }
-}
 
-function hashPassword(password: string): string {
-  return crypto.createHash('sha256').update(password).digest('hex');
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 }
 
 export async function POST(request: NextRequest) {
@@ -43,31 +25,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userFile = await getUserFile();
-    const user = userFile.users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase()
-    );
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured' },
+        { status: 500 }
+      );
+    }
 
-    if (!user) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
-    const hashedPassword = hashPassword(password);
-    if (user.password !== hashedPassword) {
+    if (!data.user) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
-
-    const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json({
       success: true,
-      user: userWithoutPassword,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.user_metadata?.name || '',
+      },
+      session: data.session,
     });
   } catch (error) {
     console.error('Login error:', error);
